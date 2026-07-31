@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebLink+ Fibra - Painel de Atendimento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #f58a1f;
+            --primary-dark: #d9770a;
+            --primary-glow: rgba(245, 138, 31, 0.15);
+            --bg: #f4f6fa;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e8edf4;
+            --shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 8px 40px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-full: 9999px;
+            --font: 'Inter', system-ui, sans-serif;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        .dark {
+            --bg: #0c1628;
+            --card: #1a2942;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e3555;
+            --shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: var(--radius-full);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 400px;
+        }
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-hover);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.warning { border-left: 4px solid var(--warning); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--info); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .login-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 95%;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-card .logo {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+        .login-card .logo i {
+            font-size: 1.8rem;
+            margin-right: 0.3rem;
+        }
+        .login-card .sub {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .login-card .field {
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+        .login-card .field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        .login-card .field .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+        .login-card .field .input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        .login-card .field .input-wrapper i {
+            position: absolute;
+            left: 0.8rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .login-card .field .input-wrapper input {
+            width: 100%;
+            padding: 0.7rem 0.8rem 0.7rem 2.5rem;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .login-card .field .input-wrapper input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .login-card .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .login-card .btn-login:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+
+        .login-card .error-msg {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .login-card .error-msg.show {
+            display: block;
+        }
+
+        .login-card .footer-login {
+            margin-top: 1.2rem;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+        .login-card .footer-login strong {
+            color: var(--primary);
+        }
+
+        .header {
+            background: #0b1a33;
+            padding: 0.6rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border-bottom: 3px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .logo .brand {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+        .logo .brand i {
+            font-size: 1.2rem;
+            margin-right: 0.3rem;
+        }
+        .logo .tag {
+            font-size: 0.5rem;
+            color: #8aadc7;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-top: -2px;
+            display: block;
+        }
+
+        .logo-divider {
+            width: 2px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .header-title {
+            color: #b0c9dd;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .header-title span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .header-title .atendente {
+            color: #8aadc7;
+            font-weight: 400;
+        }
+        .header-title .atendente strong {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .clock {
+            color: #8aadc7;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.8rem;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #8aadc7;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all var(--transition);
+            font-family: var(--font);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+        .btn-icon.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        .btn-icon .badge {
+            background: var(--primary);
+            color: #0b1a33;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.05rem 0.5rem;
+            border-radius: var(--radius-full);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 0.6rem 1.5rem;
+            background: var(--card);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+        .stats-bar .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .stats-bar .stat i {
+            color: var(--primary);
+            font-size: 0.85rem;
+        }
+        .stats-bar .stat .num {
+            background: var(--primary-glow);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 0.05rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+        }
+
+        .progress-wrapper {
+            margin-bottom: 1.5rem;
+            background: var(--card);
+            border-radius: var(--radius-full);
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+        .progress-wrapper .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+        .progress-wrapper .progress-track {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+        .progress-wrapper .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: var(--radius-full);
+            transition: width 0.6s ease;
+            width: 0%;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+            align-items: center;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 0.3rem 1rem;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+        }
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 180px;
+            background: var(--card);
+            border-radius: var(--radius-full);
+            padding: 0.3rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        .search-box i {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .search-box input {
+            border: none;
+            outline: none;
+            flex: 1;
+            background: transparent;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.85rem;
+            padding: 0.3rem 0;
+        }
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+        .search-box .result-count {
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.05rem 0.6rem;
+            border-radius: var(--radius-full);
+        }
+
+        .btn-add {
+            padding: 0.3rem 1.2rem;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .btn-add:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+
+        .tabs-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            background: var(--card);
+            padding: 0.4rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+
+        .tab-btn {
+            padding: 0.4rem 1.2rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--border);
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+        .tab-btn .shortcut {
+            opacity: 0.4;
+            font-size: 0.55rem;
+            margin-left: 0.15rem;
+        }
+        .tab-btn .count {
+            font-size: 0.55rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.05rem 0.4rem;
+            border-radius: var(--radius-full);
+            margin-left: 0.2rem;
+        }
+        .tab-btn.active .count {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 1.5rem 0 0.8rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .msg-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 0.7rem;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            border: 1px solid var(--border);
+            border-left-width: 4px;
+            transition: all var(--transition);
+            box-shadow: var(--shadow);
+        }
+        .msg-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .msg-content {
+            flex: 1;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: var(--text);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .msg-content .label {
+            display: inline-block;
+            background: var(--primary-glow);
+            color: var(--primary);
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.05rem 0.6rem;
+            border-radius: var(--radius-full);
+            margin-bottom: 0.2rem;
+            border: 1px solid rgba(245, 138, 31, 0.1);
+        }
+
+        .msg-actions {
+            display: flex;
+            gap: 0.3rem;
+            flex-shrink: 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .msg-actions .fav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.2rem 0.3rem;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition);
+        }
+        .msg-actions .fav-btn:hover {
+            color: var(--warning);
+        }
+        .msg-actions .fav-btn.active {
+            color: var(--warning);
+        }
+
+        .msg-actions .edit-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.3rem;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition);
+        }
+        .msg-actions .edit-btn:hover {
+            color: var(--info);
+        }
+
+        .msg-actions .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.3rem;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition);
+        }
+        .msg-actions .delete-btn:hover {
+            color: var(--danger);
+        }
+
+        .copy-btn {
+            background: #0b1a33;
+            color: #fff;
+            border: none;
+            padding: 0.25rem 0.9rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all var(--transition);
+            font-family: var(--font);
+            white-space: nowrap;
+        }
+        .copy-btn:hover {
+            background: var(--primary);
+            transform: scale(1.03);
+        }
+        .copy-btn.copied {
+            background: var(--success);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeUp 0.25s ease;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-hover);
+        }
+        .modal .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+        .modal .modal-head h2 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .modal .modal-head .close {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.2rem;
+        }
+        .modal .modal-head .close:hover {
+            color: var(--danger);
+        }
+
+        .modal .field {
+            margin-bottom: 0.8rem;
+        }
+        .modal .field label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+        .modal .field select,
+        .modal .field input,
+        .modal .field textarea {
+            width: 100%;
+            padding: 0.5rem 0.7rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.8rem;
+            transition: border var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+        .modal .field select:focus,
+        .modal .field input:focus,
+        .modal .field textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        .modal .field textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .modal .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .modal .modal-actions button {
+            padding: 0.4rem 1.2rem;
+            border-radius: var(--radius-full);
+            border: none;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+        }
+        .modal .modal-actions .save {
+            background: var(--primary);
+            color: #fff;
+        }
+        .modal .modal-actions .save:hover {
+            background: var(--primary-dark);
+        }
+        .modal .modal-actions .cancel {
+            background: var(--border);
+            color: var(--text-secondary);
+        }
+        .modal .modal-actions .cancel:hover {
+            background: var(--text-muted);
+            color: #fff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            opacity: 0.3;
+        }
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+        .empty-state .sub {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+        .footer span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.5rem 1rem;
+                flex-direction: column;
+            }
+            .header-left {
+                width: 100%;
+                justify-content: center;
+            }
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+            .header-title {
+                font-size: 0.7rem;
+            }
+            .logo .brand {
+                font-size: 1.2rem;
+            }
+            .logo-divider {
+                display: none;
+            }
+            .container {
+                padding: 0.8rem;
+            }
+            .stats-bar {
+                border-radius: var(--radius);
+                justify-content: center;
+                padding: 0.5rem 0.8rem;
+                gap: 0.6rem;
+            }
+            .stats-bar .stat {
+                font-size: 0.7rem;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                min-width: auto;
+            }
+            .filter-bar {
+                justify-content: center;
+            }
+            .btn-add {
+                justify-content: center;
+            }
+            .tabs-wrapper {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding: 0.2rem;
+                gap: 0.1rem;
+            }
+            .tab-btn {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.6rem;
+                white-space: nowrap;
+            }
+            .msg-card {
+                flex-direction: column;
+                padding: 0.7rem 0.8rem;
+            }
+            .msg-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .msg-content {
+                font-size: 0.8rem;
+            }
+            .copy-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .clock {
+                display: none;
+            }
+            .login-card {
+                padding: 1.5rem 1rem;
+            }
+            .modal {
+                padding: 1rem;
+                margin: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo .brand {
+                font-size: 1rem;
+            }
+            .tab-btn {
+                font-size: 0.55rem;
+                padding: 0.15rem 0.4rem;
+            }
+            .stats-bar .stat {
+                font-size: 0.6rem;
+            }
+            .msg-content {
+                font-size: 0.75rem;
+            }
+            .section-title {
+                font-size: 0.85rem;
+            }
+        }
+
+        .focus-mode .stats-bar { display: none; }
+        .focus-mode .progress-wrapper { display: none; }
+        .focus-mode .search-box { display: none; }
+        .focus-mode .filter-bar { display: none; }
+        .focus-mode .btn-add { display: none; }
+        .focus-mode .tabs-wrapper .tab-btn:not(.active) { display: none; }
+        .focus-mode .msg-actions .fav-btn { display: none; }
+        .focus-mode .msg-actions .edit-btn { display: none; }
+        .focus-mode .msg-actions .delete-btn { display: none; }
+        .focus-mode .msg-content .label { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="logo"><i class="fas fa-wifi"></i> WebLink+</div>
+            <div class="sub">Painel de Atendimento</div>
+            <div class="field">
+                <label>👤 Usuário</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="loginUser" placeholder="Digite seu usuário" />
+                </div>
+            </div>
+            <div class="field">
+                <label>🔑 Senha</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPass" placeholder="Digite sua senha" />
+                </div>
+            </div>
+            <div class="error-msg" id="loginError">❌ Usuário ou senha inválidos!</div>
+            <button class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+            <div class="footer-login"><strong>WebLink+</strong> — Acesso restrito a colaboradores</div>
+        </div>
+    </div>
+
+    <!-- SITE -->
+    <div class="site-content" id="siteContent" style="display:none;">
+
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="brand"><i class="fas fa-wifi"></i>WebLink+</span>
+                    <span class="tag">FIBRA</span>
+                </div>
+                <div class="logo-divider"></div>
+                <div class="header-title">
+                    📋 <span>Painel</span> de Atendimento
+                    <span class="atendente">| 👤 <strong id="atendenteNome">Bernardo</strong></span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="clock" id="clockDisplay">⏰ 00:00:00</div>
+                <button class="btn-icon" id="darkToggle" title="Modo escuro"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" id="focusToggle" title="Modo foco"><i class="fas fa-expand"></i></button>
+                <button class="btn-icon" id="favFilterBtn" title="Favoritos"><i class="fas fa-star"></i> <span class="badge" id="favCount">0</span></button>
+                <button class="btn-icon danger" id="logoutBtn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <!-- CONTAINER -->
+        <div class="container">
+
+            <!-- STATS -->
+            <div class="stats-bar">
+                <div class="stat"><i class="fas fa-message"></i> Mensagens <span class="num" id="totalMessages">0</span></div>
+                <div class="stat"><i class="fas fa-tag"></i> Categorias <span class="num" id="totalCategories">0</span></div>
+                <div class="stat"><i class="fas fa-copy"></i> Copiadas hoje <span class="num" id="copiedCount">0</span></div>
+                <div class="stat"><i class="fas fa-star"></i> Favoritas <span class="num" id="favoritesCount">0</span></div>
+            </div>
+
+            <!-- PROGRESS -->
+            <div class="progress-wrapper">
+                <div class="progress-label">
+                    <span>📊 Progresso do expediente</span>
+                    <span id="progressText">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar">
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">📌 Todas</button>
+                    <button class="filter-btn" data-filter="favorites">⭐ Favoritas</button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar mensagem..." />
+                    <span class="result-count" id="resultCount">0</span>
+                </div>
+                <button class="btn-add" id="btnAddMsg"><i class="fas fa-plus"></i> Nova</button>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs-wrapper" id="tabsWrapper"></div>
+
+            <!-- TAB CONTENT -->
+            <div id="tabContainer"></div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>📋 <span>WebLink+ Fibra</span> — Painel de Atendimento</p>
+            <p style="margin-top:0.1rem;opacity:0.5;font-size:0.6rem;">Copie e cole com agilidade no atendimento</p>
+        </footer>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-head">
+                <h2 id="modalTitle">Nova Mensagem</h2>
+                <button class="close" id="modalClose">&times;</button>
+            </div>
+            <form id="msgForm">
+                <div class="field">
+                    <label>📂 Categoria</label>
+                    <select id="formCategory" required></select>
+                </div>
+                <div class="field">
+                    <label>🏷️ Label (etiqueta)</label>
+                    <input type="text" id="formLabel" placeholder="Ex: ☀️ Bom dia" required />
+                </div>
+                <div class="field">
+                    <label>📝 Mensagem</label>
+                    <textarea id="formMessage" placeholder="Digite o conteúdo da mensagem..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel" id="modalCancel">Cancelar</button>
+                    <button type="submit" class="save" id="modalSave">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // =============================================================
+            // USUÁRIOS
+            // =============================================================
+            const USERS = {
+                'bernardoaam': { senha: 'Db880559@', nome: 'Bernardo' },
+                'joyce': { senha: '12345678', nome: 'Joyce' }
+            };
+
+            let currentUser = null;
+
+            // =============================================================
+            // LOGIN
+            // =============================================================
+            const loginScreen = document.getElementById('loginScreen');
+            const siteContent = document.getElementById('siteContent');
+            const loginUser = document.getElementById('loginUser');
+            const loginPass = document.getElementById('loginPass');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+
+            if (sessionStorage.getItem('loggedIn') === 'true') {
+                const savedUser = sessionStorage.getItem('currentUser');
+                if (savedUser && USERS[savedUser]) {
+                    currentUser = savedUser;
+                    loginScreen.classList.add('hidden');
+                    siteContent.style.display = 'block';
+                    document.getElementById('atendenteNome').textContent = USERS[savedUser].nome;
+                }
+            }
+
+            loginBtn.addEventListener('click', function() {
+                const user = loginUser.value.trim().toLowerCase();
+                const pass = loginPass.value.trim();
+
+                if (USERS[user] && USERS[user].senha === pass) {
+                    currentUser = user;
+                    sessionStorage.setItem('loggedIn', 'true');
+                    sessionStorage.setItem('currentUser', user);
+                    loginScreen.classList.add('hidden');
+                    siteContent.style.display = 'block';
+                    document.getElementById('atendenteNome').textContent = USERS[user].nome;
+                    loginError.classList.remove('show');
+                    initSite();
+                    toast(`👤 Bem-vindo(a), ${USERS[user].nome}!`, 'success');
+                } else {
+                    loginError.classList.add('show');
+                    loginPass.value = '';
+                    loginPass.focus();
+                }
+            });
+
+            loginPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
+            loginUser.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
+
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('Deseja realmente sair?')) {
+                    sessionStorage.removeItem('loggedIn');
+                    sessionStorage.removeItem('currentUser');
+                    currentUser = null;
+                    loginScreen.classList.remove('hidden');
+                    siteContent.style.display = 'none';
+                    loginUser.value = '';
+                    loginPass.value = '';
+                    loginError.classList.remove('show');
+                }
+            });
+
+            // =============================================================
+            // FUNÇÃO PARA PEGAR O NOME DO ATENDENTE
+            // =============================================================
+            function getAtendenteNome() {
+                if (currentUser && USERS[currentUser]) {
+                    return USERS[currentUser].nome;
+                }
+                return 'Bernardo';
+            }
+
+            // =============================================================
+            // FUNÇÃO PARA SUBSTITUIR O NOME NA MENSAGEM
+            // =============================================================
+            function processMessageText(text) {
+                const nome = getAtendenteNome();
+                let result = text.replace(/{atendente}/g, nome);
+                result = result.replace(/Sou Bernardo/g, `Sou ${nome}`);
+                result = result.replace(/Sou Bernardo ,/g, `Sou ${nome},`);
+                return result;
+            }
+
+            // =============================================================
+            // TODAS AS MENSAGENS DO WORD (46 mensagens)
+            // =============================================================
+
+            const DEFAULT_MESSAGES = [
+                // ===== ABERTURA (3) =====
+                { id: 'm1', category: 'abertura', label: '☀️ Bom dia',
+                    text: 'Olá, bom dia! Tudo bem? 😊\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
+                { id: 'm2', category: 'abertura', label: '🌤️ Boa tarde',
+                    text: 'Olá, boa tarde! Tudo bem? 😊\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
+                { id: 'm3', category: 'abertura', label: '🌙 Boa noite',
+                    text: 'Olá, boa noite! Tudo bem? 😊\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
+
+                // ===== ENCERRAMENTO (4) =====
+                { id: 'm4', category: 'encerramento', label: '☀️ Dia',
+                    text: 'Vou encerrar nosso atendimento por agora 😊 Foi um prazer te ajudar!\nSe precisar, estou à disposição\n\nSua avaliação é muito importante para nós! Se puder, avalie o atendimento 🙏\nObrigado e tenha um ótimo dia! ☎️' },
+                { id: 'm5', category: 'encerramento', label: '🌤️ Tarde',
+                    text: 'Vou encerrar nosso atendimento por agora 😊 Foi um prazer te ajudar!\nSe precisar, estou à disposição\n\nSua avaliação é muito importante para nós! Se puder, avalie o atendimento 🙏\nObrigado e tenha uma ótima tarde! ☎️' },
+                { id: 'm6', category: 'encerramento', label: '🌙 Noite',
+                    text: 'Vou encerrar nosso atendimento por agora 😊 Foi um prazer te ajudar!\nSe precisar, estou à disposição\n\nSua avaliação é muito importante para nós! Se puder, avalie o atendimento 🙏\nObrigado e tenha uma ótima noite! ☎️' },
+                { id: 'm7', category: 'encerramento', label: '⏳ Sem retorno',
+                    text: 'Como não tivemos retorno por um tempo 😊 vou encerrar por aqui.\nSe precisar, estou à disposição!' },
+
+                // ===== SUPORTE (19) =====
+                { id: 'm8', category: 'suporte', label: '📋 Coleta de informações',
+                    text: 'Vou te ajudar da melhor forma possível 😊\nPode me passar alguns detalhes?\n\n📉 Está com lentidão, quedas ou oscilações?\n⏰ Acontece em qual horário? Desde quando?\n📱💻 É em todos os dispositivos (celular, TV, computador)?\n🏡 É na casa toda ou em pontos específicos?\n📲 Ocorre em algum app específico?\nAssim consigo analisar e te ajudar mais rápido! 🚀' },
+                { id: 'm9', category: 'suporte', label: '📋 Coleta (variação)',
+                    text: 'Bom dia, tudo bem? 😊\n\nVocê pode me informar mais alguns detalhes, por favor?\n\n📉 Está com lentidão, quedas ou oscilações?\n⏰ Acontece em todos os horários? Desde quando começou?\n📱📺💻 O problema é em todos os aparelhos (celular, TV, computador) ou só em um?\n🏡 É na casa toda ou em um local específico?\n📲 Ocorre em algum aplicativo específico?\nCom essas informações, consigo analisar melhor e buscar uma solução mais rápida para você! 🚀' },
+                { id: 'm10', category: 'suporte', label: '🔧 Ajuste remoto',
+                    text: 'Fiz alguns ajustes na sua conexão remotamente 🔄\nA conexão vai reiniciar.\nApós a conexão voltar, desligue o Wi-Fi e ligue novamente no seu celular 📶\nFeche e abra os aplicativos novamente 📱\nSe for TV, desligue e ligue 📺\nPode testar e me dar um retorno por favor? 😊' },
+                { id: 'm11', category: 'suporte', label: '🚀 Liberação de conexão',
+                    text: 'Prontinho! Conexão liberada 🚀\nPode levar até 5 minutinhos para normalizar ⏳\nPosso te ajudar em algo mais? 😊' },
+                { id: 'm12', category: 'suporte', label: '🔄 Transferência',
+                    text: 'Vou transferir seu atendimento para o setor responsável 😊\nEles darão continuidade e vão te ajudar da melhor forma!' },
+                { id: 'm13', category: 'suporte', label: '🔄 Acompanhamento 1',
+                    text: 'Que bom que a conexão melhorou! 📶\nSe o problema voltar a acontecer, estou à disposição para ajudar.\nPosso te auxiliar em algo mais? 🙂' },
+                { id: 'm14', category: 'suporte', label: '🔄 Acompanhamento 2',
+                    text: 'Olá, tudo bem?\n\nEstou passando para saber se a sua conexão de internet apresentou melhora desde o último atendimento. Se ainda estiver enfrentando alguma dificuldade, estou à disposição para te ajudar! 😊\nFico no aguardo do seu retorno. Tenha um ótimo dia!' },
+                { id: 'm15', category: 'suporte', label: '🔐 Troca de senha Wi-Fi',
+                    text: 'Me informe a nova senha, por favor 🔐\nApós a troca, será necessário esquecer a rede antiga e conectar novamente em todos os dispositivos, ok? 😊' },
+                { id: 'm16', category: 'suporte', label: '🔑 Criação de senha',
+                    text: 'A nova senha precisa ter:\n• Mínimo de 8 caracteres\n• Letras maiúsculas e minúsculas\n• Números\n• 1 caractere especial (@, #, $...)\nPode me enviar que faço a alteração 😊' },
+                { id: 'm17', category: 'suporte', label: '🔄 Atualização de roteador',
+                    text: 'Verifiquei que o seu roteador precisa de uma atualização no sistema.\nVou iniciar agora 🔄\nA conexão pode cair por alguns minutos ⚠️\nEla volta automaticamente em até 3 minutos ⏳\nPor favor, não desligue o equipamento 🔌' },
+                { id: 'm18', category: 'suporte', label: '✅ Pós atualização',
+                    text: 'Atualização concluída! ✅\nA conexão vai reiniciar 🔄\nApós a conexão voltar, desligue o Wi-Fi e ligue novamente no seu celular 📶\nFeche e abra os aplicativos novamente 📱\nSe for TV, desligue e ligue 📺\nPode testar e me dar um retorno por favor? 😊' },
+                { id: 'm19', category: 'suporte', label: '📡 ONT Terapro',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🐢 RELATOU LENTIDÃO NA CONEXÃO.\n\n📡 ONT TERAPRO:\nFORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO E ATIVADO O ISOLAMENTO DE REDES, FORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DO DNS, E ATIVAÇÃO DO IPV6, FEITO TAMBÉM A ATUALIZAÇÃO DA ONT TERAPRO. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
+                { id: 'm20', category: 'suporte', label: '📡 Zyxel',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🐢 RELATOU LENTIDÃO NA CONEXÃO.\n\n📡 ZYXEL:\nFEITA A ATUALIZAÇÃO DO ROTEADOR ZYZEL, FEITA TAMBÉM A PADRONIZAÇÃO DO DNS E DO IPV6. PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO. DESATIVADO O MDL. DESATIVADO O WIFFI 6 NA REDE 2.4, DESATIVADO O DFS NA REDE 5G. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
+                { id: 'm21', category: 'suporte', label: '📡 Roteadores comuns',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🐢 RELATOU LENTIDÃO NA CONEXÃO.\n\n📡 ROTEADORES COMUNS:\nFORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO, ATIVADO O IPV6. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
+                { id: 'm22', category: 'suporte', label: '🔁 Suporte remoto indisponível',
+                    text: '🔁 SUPORTE REMOTO REALIZADO: NÃO FOI POSSÍVEL REALIZAR O SUPORTE POIS O ROTEADOR ESTÁ SEM ACESSO REMOTO ATIVADO, POR FAVOR REALIZAR VERIFICAÇÕES DA CONEXÃO DO CLIENTE E ATIVAR O ACESSO REMOTO DO ROTEADOR.' },
+                { id: 'm23', category: 'suporte', label: '📺 Acesso WebLink TV',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n📺 SOLICITOU ACESSO AO WEBLINK TV.\n📤 ACESSO ENVIADO.' },
+                { id: 'm24', category: 'suporte', label: '🔑 Troca de senha',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🔑 SOLICITOU TROCA DE SENHA.\n✅ SENHA ALTERADA.' },
+                { id: 'm25', category: 'suporte', label: '🔑 Troca senha app',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n📺 SOLICITOU TROCA DE SENHA DO APP WEBLINK.\n🔑 SENHA ALTERADA.\n🆕 NOVA SENHA:' },
+                { id: 'm26', category: 'suporte', label: '📍 Verificar viabilidade',
+                    text: '📍 VERIFICAR VIABILIDADE:\n👤 PROPRIETÁRIO:\n📞 CONTATO:\n🏡 NOME DA FAZENDA:\n📏 QUANTOS KM DA CIDADE:\n📌 REFERÊNCIA DA LOCALIZAÇÃO:\n📡 EQUIPAMENTOS:' },
+
+                // ===== CHECKLIST (6) =====
+                { id: 'm27', category: 'checklist', label: '📋 Checklist conexão',
+                    text: '📋 CHECKLIST -- ABERTURA DE ATENDIMENTO (PROBLEMAS DE CONEXÃO)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n⚠️ PROBLEMA RELATADO:\n🌐 POSSUI CONEXÃO CABEADA:\n🔁 SUPORTE REMOTO REALIZADO:\n📡 SINAL DA FIBRA:\nTX:\nRX:' },
+                { id: 'm28', category: 'checklist', label: '📋 Sem conexão',
+                    text: '📋 CHECKLIST -- SEM CONEXÃO\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n⚠️ PROBLEMA RELATADO:\n🚨 LOS:\n\nSEM CONEXÃO, FEITOS OS PROCEDIMENTOS DE REINICIO E VERIFICAÇÃO DOS CABOS MAS SEM SUCESSO.' },
+                { id: 'm29', category: 'checklist', label: '📋 Câmera offline',
+                    text: '📋 CHECKLIST -- ABERTURA DE ATENDIMENTO (CÂMERA OFFLINE)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n📹 CÂMERA AFETADA:\n⚠️ PROBLEMA RELATADO:\n🔍 VERIFICAÇÕES FEITAS' },
+                { id: 'm30', category: 'checklist', label: '📋 Adição de câmeras',
+                    text: '📋 CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ADIÇÃO DE CÂMERAS)\n\n📹 QUANTIDADE DE CÂMERAS ADICIONADAS:\n📧 E-MAIL CADASTRADO:\n🔑 SENHA CADASTRADA:\n✅ CÂMERAS ADICIONADAS COM SUCESSO' },
+                { id: 'm31', category: 'checklist', label: '📋 Auxílio',
+                    text: '📋 CHECKLIST -- ABERTURA DE ATENDIMENTO (AUXÍLIO)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n🛠 ATENDIMENTO SOLICITADO:\n💰 TAXA:' },
+                { id: 'm32', category: 'checklist', label: '📋 Ativação streaming',
+                    text: '📋 CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ATIVAÇÃO DE STREAMING)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n📺 SERVIÇO ATIVADO:\n(DEEZER / DISNEY+ / HBO MAX)\n📧 E-MAIL CADASTRADO:\n🔑 SENHA CADASTRADA:\n✅ ATIVAÇÃO CONCLUÍDA' },
+
+                // ===== FINANCEIRO (4) =====
+                { id: 'm33', category: 'financeiro', label: '🏠 Mudança de endereço',
+                    text: 'Para mudança de endereço, me informe:\n\n👤 Nome completo do titular:\n🏙️ Cidade:\n🏘️ Bairro:\n🛣️ Rua:\n🏡 Número da casa:\n\n📌 Como será feita uma nova instalação, temos uma taxa simbólica de R$100,00 a prazo.\n💸 À vista conseguimos um desconto, ficando por R$70,00.\n🎉 Boa notícia: Se a casa já teve uma instalação da WebLink e for possível reutilizar o cabo, não haverá taxa!\n\n📦 Os equipamentos (roteador e ONU) precisam estar no novo endereço na hora do atendimento.' },
+                { id: 'm34', category: 'financeiro', label: '🔓 Desbloqueio em confiança',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🔓 SOLICITOU DESBLOQUEIO EM CONFIANÇA.\n✅ DESBLOQUEIO CONCEDIDO, CONEXÃO LIBERADA.' },
+                { id: 'm35', category: 'financeiro', label: '📄 Segunda via de boleto',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n📄 SOLICITOU SEGUNDA VIA DE BOLETO.\n📤 BOLETO ENVIADO.' },
+                { id: 'm36', category: 'financeiro', label: '💳 Liberação com comprovante',
+                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n💳 SOLICITOU LIBERAÇÃO MEDIANTE COMPROVANTE DE PAGAMENTO.\n📎 COMPROVANTE ANEXADO E CONEXÃO LIBERADA.' },
+
+                // ===== STREAMING (6) =====
+                { id: 'm37', category: 'streaming', label: '📺 WebLink TV 1',
+                    text: 'Para acessar pelo CDN TV você primeiro precisa seguir esse passo a passo:\n\n1.Escolha do Provedor 🔍:\n• Ao acessar a plataforma, será solicitado que você selecione um provedor.\n• No campo de pesquisa, digite WEBLINK.\n\n2.Selecione a Opção Correta ✅:\n• Duas opções devem aparecer, selecione a segunda opção: (WEBLINK TV) tv.weblinknet.com.br\n\n3.Login 🔐:\n• Depois disso, apenas digite os seus acessos:\n• 👤 Usuário:\n• 🔑 Senha:\n\nApós o login, você terá acesso a todo conteúdo disponível.📺🎉' },
+                { id: 'm38', category: 'streaming', label: '📺 WebLink TV 2',
+                    text: 'PARA ACESSAR A WEBLINK TV 📺\n\nBaixe o Aplicativo 📲:\nNa TV , baixe o app WEBLINK STB ou CDN TV .\nNo celular , baixe o app WEBLINK TV .\n\nDigite seu Login 👤:\nUsuário :\n🔑 Senha :\n\nAproveite! 🎉\nPronto! Agora é só assistir aos mais de 190 canais disponíveis.\nDivirta-se! 😊' },
+                { id: 'm39', category: 'streaming', label: '📺 WebLink TV 3',
+                    text: 'Aqui está o seu acesso:\n• 👤 Usuário :\n• 🔑 Senha :\n\nAproveite! 🎉\nPronto! Agora é só assistir aos mais de 190 canais disponíveis.\nDivirta-se! 😊' },
+                { id: 'm40', category: 'streaming', label: '🎬 HBO Max',
+                    text: '🎬 Acesso HBO Max liberado! 🍿✨\nProntinho! Agora é só baixar ou acessar o aplicativo HBO Max e aproveitar 😍\n📧 E-mail:\n🔐 Senha:\nQualquer dúvida é só chamar 😉\nBom proveito e bons episódios! 🧡💙🎥🍿' },
+                { id: 'm41', category: 'streaming', label: '🎬 Disney+',
+                    text: '🎬 Acesso Disney+ liberado! 🍿✨\nProntinho! Agora é só baixar ou acessar o aplicativo Disney+ e aproveitar 😍\n📧 E-mail:\n🔐 Senha:\nQualquer dúvida é só chamar 😉\nBom proveito e bons episódios! 🧡💙🎥🍿' },
+                { id: 'm42', category: 'streaming', label: '🎧 Deezer',
+                    text: 'Foi adicionada a sua licença por aqui! 🎧💙🧡\nO Deezer irá enviar um e-mail para você ativar a sua conta e realizar o seu acesso 📩\nCaso não receba em até 24 horas, pode me chamar por aqui que te ajudo 😊\n\nPara fazer o seu cadastro no Deezer, clique nesse link 👉 https://www.deezer.com/br/activate/stennabr\n\n1️⃣ Primeiro, digite o seu CPF.\n2️⃣ Depois, informe o seu número de telefone 📱.\n3️⃣ Em seguida, selecione a opção "Cadastre-se" ✍️.\n4️⃣ Insira os seus dados pessoais e faça o seu cadastro 📝.\n\nDivirta-se ouvindo suas músicas favoritas! 🎧🎶🎉' },
+
+                // ===== PAUSA (2) =====
+                { id: 'm43', category: 'pausa', label: '🍽️ Intervalo 2h',
+                    text: 'Estou saindo para o meu intervalo de 2 horas, porém deixarei seu atendimento em aberto para continuarmos quando eu retornar.\n\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.' },
+                { id: 'm44', category: 'pausa', label: '🌙 Encerrando expediente',
+                    text: 'Meu expediente se encerra agora, deixarei seu atendimento em aberto para continuarmos amanhã às 08:00.\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.\nTenha uma ótima noite! 🌙' },
+
+                // ===== EVENTOS (2) =====
+                { id: 'm45', category: 'eventos', label: '🛠️ Solicitação evento',
+                    text: '🛠️ INSTALAR EQUIPAMENTOS DE EVENTO PARA COBERTURA DE INTERNET\n\n🎶 DESCRIÇÃO DO EVENTO:\n📍 LOCAL DO EVENTO:\n📅 DATA DO EVENTO:\n👤 RESPONSÁVEL:\n👥 QUANTIDADE DE PESSOAS PREVISTA:\n🌐 INTERNET SERÁ UTILIZADA PARA: (PAGAMENTOS PIX, ACESSO AO PÚBLICO, TRANSMISSÕES AO VIVO)\n🎪 NECESSÁRIO ESPAÇO PARA BALÃO OU TENDA:' },
+                { id: 'm46', category: 'eventos', label: '📦 Retirada equipamentos',
+                    text: '📦 RETIRADA DE EQUIPAMENTOS PARA EVENTO\n\n📍 LOCAL:\n👤 RESPONSÁVEL:\n🛠️ EQUIPAMENTOS:' }
+            ];
+
+            const DEFAULT_CATEGORIES = [
+                { id: 'abertura', name: '🟢 Abertura', shortcut: '1' },
+                { id: 'encerramento', name: '🔴 Encerramento', shortcut: '2' },
+                { id: 'suporte', name: '🛠️ Suporte', shortcut: '3' },
+                { id: 'checklist', name: '📋 Checklist', shortcut: '4' },
+                { id: 'financeiro', name: '💰 Financeiro', shortcut: '5' },
+                { id: 'streaming', name: '🎬 Streamings', shortcut: '6' },
+                { id: 'pausa', name: '⏳ Pausa', shortcut: '7' },
+                { id: 'eventos', name: '🎪 Eventos', shortcut: '8' }
+            ];
+
+            // =============================================================
+            // ESTADO
+            // =============================================================
+
+            let messages = JSON.parse(localStorage.getItem('weblink_messages')) || DEFAULT_MESSAGES;
+            let categories = JSON.parse(localStorage.getItem('weblink_categories')) || DEFAULT_CATEGORIES;
+            let favorites = JSON.parse(localStorage.getItem('weblink_favorites')) || [];
+            let copiedToday = parseInt(localStorage.getItem('copiedToday')) || 0;
+            let lastDate = localStorage.getItem('lastDate') || '';
+
+            let currentTab = 'abertura';
+            let currentFilter = 'all';
+            let isFocusMode = false;
+            let editingId = null;
+
+            const today = new Date().toDateString();
+            if (lastDate !== today) {
+                copiedToday = 0;
+                localStorage.setItem('copiedToday', '0');
+                localStorage.setItem('lastDate', today);
+            }
+
+            // =============================================================
+            // FUNÇÕES
+            // =============================================================
+
+            function saveMessages() { localStorage.setItem('weblink_messages', JSON.stringify(messages)); }
+
+            function saveFavorites() { localStorage.setItem('weblink_favorites', JSON.stringify(favorites)); }
+
+            function saveCopied() { localStorage.setItem('copiedToday', String(copiedToday)); }
+
+            function updateStats() {
+                document.getElementById('totalMessages').textContent = messages.length;
+                document.getElementById('totalCategories').textContent = categories.length;
+                document.getElementById('copiedCount').textContent = copiedToday;
+                document.getElementById('favoritesCount').textContent = favorites.length;
+                document.getElementById('favCount').textContent = favorites.length;
+            }
+
+            function updateProgress() {
+                const now = new Date();
+                const start = new Date();
+                start.setHours(8, 0, 0);
+                const end = new Date();
+                end.setHours(18, 0, 0);
+                const total = end - start;
+                const elapsed = now - start;
+                let pct = Math.min((elapsed / total) * 100, 100);
+                pct = Math.max(0, pct);
+                document.getElementById('progressFill').style.width = pct + '%';
+                document.getElementById('progressText').textContent = Math.round(pct) + '%';
+            }
+
+            function updateClock() {
+                document.getElementById('clockDisplay').textContent = '⏰ ' + new Date().toLocaleTimeString('pt-BR');
+            }
+
+            function populateCategorySelect() {
+                const select = document.getElementById('formCategory');
+                select.innerHTML = '';
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = cat.name;
+                    if (cat.id === currentTab) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            }
+
+            // =============================================================
+            // RENDER
+            // =============================================================
+
+            function renderTabs() {
+                const wrapper = document.getElementById('tabsWrapper');
+                wrapper.innerHTML = '';
+                categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = `tab-btn ${cat.id === currentTab ? 'active' : ''}`;
+                    const count = messages.filter(m => m.category === cat.id).length;
+                    btn.innerHTML =
+                        `${cat.name} <span class="count">${count}</span> <span class="shortcut">(Ctrl+${cat.shortcut})</span>`;
+                    btn.dataset.tab = cat.id;
+                    btn.addEventListener('click', () => {
+                        currentTab = cat.id;
+                        renderTabs();
+                        renderMessages();
+                    });
+                    wrapper.appendChild(btn);
+                });
+            }
+
+            function renderMessages() {
+                const container = document.getElementById('tabContainer');
+                const search = document.getElementById('searchInput').value.toLowerCase().trim();
+
+                let filtered = messages.filter(m => m.category === currentTab);
+
+                if (search) {
+                    filtered = filtered.filter(m =>
+                        m.text.toLowerCase().includes(search) ||
+                        m.label.toLowerCase().includes(search)
+                    );
+                }
+
+                if (currentFilter === 'favorites') {
+                    filtered = filtered.filter(m => favorites.includes(m.id));
+                }
+
+                filtered.sort((a, b) => {
+                    const aFav = favorites.includes(a.id) ? 0 : 1;
+                    const bFav = favorites.includes(b.id) ? 0 : 1;
+                    return aFav - bFav;
+                });
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhuma mensagem nesta categoria</p>
+                            <span class="sub">Clique em "Nova" para adicionar</span>
+                        </div>
+                    `;
+                    document.getElementById('resultCount').textContent = '0';
+                    return;
+                }
+
+                let html = '';
+                const catName = categories.find(c => c.id === currentTab)?.name || currentTab;
+                html += `<div class="section-title"><i class="fas fa-folder"></i> ${catName}</div>`;
+
+                filtered.forEach(msg => {
+                    const isFav = favorites.includes(msg.id);
+                    const displayText = processMessageText(msg.text);
+                    html += `
+                        <div class="msg-card">
+                            <div class="msg-content">
+                                <span class="label">${msg.label}</span>
+                                ${displayText}
+                            </div>
+                            <div class="msg-actions">
+                                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${msg.id}')" title="Favoritar">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                                <button class="edit-btn" onclick="editMessage('${msg.id}')" title="Editar">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="delete-btn" onclick="deleteMessage('${msg.id}')" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="copy-btn" onclick="copyMsg('${msg.id}')">
+                                    <i class="fas fa-copy"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+                document.getElementById('resultCount').textContent = filtered.length;
+            }
+
+            // =============================================================
+            // AÇÕES
+            // =============================================================
+
+            window.copyMsg = function(id) {
+                const msg = messages.find(m => m.id === id);
+                if (!msg) return;
+                const displayText = processMessageText(msg.text);
+                navigator.clipboard.writeText(displayText).then(() => {
+                    copiedToday++;
+                    saveCopied();
+                    updateStats();
+
+                    document.querySelectorAll('.copy-btn').forEach(btn => {
+                        if (btn.closest('.msg-card')?.querySelector('.fav-btn')?.onclick?.toString()
+                            .includes(id)) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                            btn.classList.add('copied');
+                            setTimeout(() => {
+                                btn.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                                btn.classList.remove('copied');
+                            }, 2000);
+                        }
+                    });
+                });
+            };
+
+            window.toggleFav = function(id) {
+                const idx = favorites.indexOf(id);
+                if (idx > -1) favorites.splice(idx, 1);
+                else favorites.push(id);
+                saveFavorites();
+                renderMessages();
+                updateStats();
+            };
+
+            window.deleteMessage = function(id) {
+                if (!confirm('Deseja realmente excluir esta mensagem?')) return;
+                messages = messages.filter(m => m.id !== id);
+                saveMessages();
+                renderMessages();
+                renderTabs();
+                updateStats();
+                toast('🗑️ Mensagem excluída!', 'success');
+            };
+
+            window.editMessage = function(id) {
+                const msg = messages.find(m => m.id === id);
+                if (!msg) return;
+                editingId = id;
+                document.getElementById('modalTitle').textContent = '✏️ Editar Mensagem';
+                document.getElementById('formCategory').value = msg.category;
+                document.getElementById('formLabel').value = msg.label;
+                document.getElementById('formMessage').value = msg.text;
+                document.getElementById('modalSave').textContent = 'Atualizar';
+                document.getElementById('modalOverlay').classList.add('open');
+            };
+
+            // =============================================================
+            // MODAL
+            // =============================================================
+
+            document.getElementById('btnAddMsg').addEventListener('click', function() {
+                editingId = null;
+                document.getElementById('modalTitle').textContent = '📝 Nova Mensagem';
+                document.getElementById('formCategory').value = currentTab;
+                document.getElementById('formLabel').value = '';
+                document.getElementById('formMessage').value = '';
+                document.getElementById('modalSave').textContent = 'Salvar';
+                populateCategorySelect();
+                document.getElementById('modalOverlay').classList.add('open');
+            });
+
+            document.getElementById('modalClose').addEventListener('click', function() {
+                document.getElementById('modalOverlay').classList.remove('open');
+            });
+            document.getElementById('modalCancel').addEventListener('click', function() {
+                document.getElementById('modalOverlay').classList.remove('open');
+            });
+            document.getElementById('modalOverlay').addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('open');
+            });
+
+            document.getElementById('msgForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const category = document.getElementById('formCategory').value;
+                const label = document.getElementById('formLabel').value.trim();
+                const text = document.getElementById('formMessage').value.trim();
+
+                if (!category || !label || !text) {
+                    toast('⚠️ Preencha todos os campos!', 'warning');
+                    return;
+                }
+
+                if (editingId) {
+                    const idx = messages.findIndex(m => m.id === editingId);
+                    if (idx > -1) {
+                        messages[idx] = { ...messages[idx], category, label, text };
+                        saveMessages();
+                        toast('✅ Mensagem atualizada!', 'success');
+                    }
+                } else {
+                    const newMsg = {
+                        id: 'm' + Date.now(),
+                        category,
+                        label,
+                        text
+                    };
+                    messages.push(newMsg);
+                    saveMessages();
+                    toast('✅ Mensagem adicionada!', 'success');
+                }
+
+                document.getElementById('modalOverlay').classList.remove('open');
+                renderTabs();
+                renderMessages();
+                updateStats();
+            });
+
+            // =============================================================
+            // TOAST
+            // =============================================================
+
+            function toast(msg, type = 'info') {
+                let container = document.getElementById('toastContainer');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.className = 'toast-container';
+                    container.id = 'toastContainer';
+                    document.body.appendChild(container);
+                }
+                const el = document.createElement('div');
+                el.className = `toast ${type}`;
+                const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+                el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${msg}`;
+                container.appendChild(el);
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateX(100%)';
+                    setTimeout(() => el.remove(), 300);
+                }, 3000);
+            }
+
+            // =============================================================
+            // FILTROS
+            // =============================================================
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    renderMessages();
+                });
+            });
+
+            document.getElementById('searchInput').addEventListener('input', renderMessages);
+
+            document.getElementById('favFilterBtn').addEventListener('click', function() {
+                const isActive = this.classList.toggle('active');
+                currentFilter = isActive ? 'favorites' : 'all';
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                if (!isActive) {
+                    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+                }
+                renderMessages();
+            });
+
+            // =============================================================
+            // FOCUS MODE
+            // =============================================================
+
+            document.getElementById('focusToggle').addEventListener('click', function() {
+                isFocusMode = !isFocusMode;
+                document.body.classList.toggle('focus-mode', isFocusMode);
+                this.innerHTML = isFocusMode ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+            });
+
+            // =============================================================
+            // DARK MODE
+            // =============================================================
+
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark');
+                document.getElementById('darkToggle').innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+            document.getElementById('darkToggle').addEventListener('click', function() {
+                document.body.classList.toggle('dark');
+                const isDark = document.body.classList.contains('dark');
+                localStorage.setItem('darkMode', isDark);
+                this.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+
+            // =============================================================
+            // ATALHOS
+            // =============================================================
+
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey) {
+                    const map = {};
+                    categories.forEach(c => { map[c.shortcut] = c.id; });
+                    const tab = map[e.key];
+                    if (tab) {
+                        e.preventDefault();
+                        currentTab = tab;
+                        renderTabs();
+                        renderMessages();
+                    }
+                    if (e.key === 'n') {
+                        e.preventDefault();
+                        document.getElementById('btnAddMsg').click();
+                    }
+                }
+            });
+
+            // =============================================================
+            // INICIALIZAÇÃO
+            // =============================================================
+
+            function initSite() {
+                setInterval(updateClock, 1000);
+                setInterval(updateProgress, 60000);
+                updateClock();
+                updateProgress();
+                renderTabs();
+                renderMessages();
+                updateStats();
+                populateCategorySelect();
+                const nome = getAtendenteNome();
+                console.log(`✅ Site WebLink+ Atendimento carregado com sucesso!`);
+                console.log(`👤 Atendente: ${nome}`);
+                console.log(`📊 ${messages.length} mensagens carregadas`);
+                toast(`💡 Bem-vindo(a), ${nome}! Use Ctrl+1 a Ctrl+8 para navegar`, 'info');
+            }
+
+            if (sessionStorage.getItem('loggedIn') === 'true') {
+                const savedUser = sessionStorage.getItem('currentUser');
+                if (savedUser && USERS[savedUser]) {
+                    currentUser = savedUser;
+                    document.getElementById('atendenteNome').textContent = USERS[savedUser].nome;
+                }
+                initSite();
+            }
+
+        });
+    </script>
+
+</body>
+</html>
