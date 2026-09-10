@@ -56,16 +56,9 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: var(--radius-full);
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: var(--radius-full); }
 
         .toast-container {
             position: fixed;
@@ -922,113 +915,74 @@
         .user-table .action-btn.delete { color: var(--danger); }
         .user-table .action-btn.delete:hover { background: rgba(239, 68, 68, 0.1); }
 
+        /* ===== MENSAGEM SUGERIDA ===== */
+        .msg-card.sugerida {
+            border-left-color: var(--success) !important;
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.06), transparent 60%);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15), var(--shadow);
+        }
+
+        .msg-card.sugerida .label {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .msg-card.sugerida .label::after {
+            content: ' ★ Sugerida';
+            font-weight: 700;
+            opacity: 0.9;
+            margin-left: 4px;
+            font-size: 0.55rem;
+            color: var(--success);
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 0.5rem 1rem;
                 flex-direction: column;
             }
-            .header-left {
-                width: 100%;
-                justify-content: center;
-            }
-            .header-right {
-                width: 100%;
-                justify-content: center;
-            }
-            .header-title {
-                font-size: 0.7rem;
-            }
-            .logo .brand {
-                font-size: 1.2rem;
-            }
-            .logo-divider {
-                display: none;
-            }
-            .container {
-                padding: 0.8rem;
-            }
+            .header-left { width: 100%; justify-content: center; }
+            .header-right { width: 100%; justify-content: center; }
+            .header-title { font-size: 0.7rem; }
+            .logo .brand { font-size: 1.2rem; }
+            .logo-divider { display: none; }
+            .container { padding: 0.8rem; }
             .stats-bar {
                 border-radius: var(--radius);
                 justify-content: center;
                 padding: 0.5rem 0.8rem;
                 gap: 0.6rem;
             }
-            .stats-bar .stat {
-                font-size: 0.7rem;
-            }
-            .toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .search-box {
-                min-width: auto;
-            }
-            .filter-bar {
-                justify-content: center;
-            }
-            .btn-add {
-                justify-content: center;
-            }
+            .stats-bar .stat { font-size: 0.7rem; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .search-box { min-width: auto; }
+            .filter-bar { justify-content: center; }
+            .btn-add { justify-content: center; }
             .tabs-wrapper {
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 padding: 0.2rem;
                 gap: 0.1rem;
             }
-            .tab-btn {
-                font-size: 0.65rem;
-                padding: 0.2rem 0.6rem;
-                white-space: nowrap;
-            }
-            .msg-card {
-                flex-direction: column;
-                padding: 0.7rem 0.8rem;
-            }
-            .msg-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            .msg-content {
-                font-size: 0.8rem;
-            }
-            .copy-btn {
-                width: 100%;
-                justify-content: center;
-            }
-            .clock {
-                display: none;
-            }
-            .login-card {
-                padding: 1.5rem 1rem;
-            }
-            .modal {
-                padding: 1rem;
-                margin: 1rem;
-            }
+            .tab-btn { font-size: 0.65rem; padding: 0.2rem 0.6rem; white-space: nowrap; }
+            .msg-card { flex-direction: column; padding: 0.7rem 0.8rem; }
+            .msg-actions { width: 100%; justify-content: flex-end; }
+            .msg-content { font-size: 0.8rem; }
+            .copy-btn { width: 100%; justify-content: center; }
+            .clock { display: none; }
+            .login-card { padding: 1.5rem 1rem; }
+            .modal { padding: 1rem; margin: 1rem; }
             .user-table th,
-            .user-table td {
-                padding: 0.5rem 0.6rem;
-                font-size: 0.7rem;
-            }
+            .user-table td { padding: 0.5rem 0.6rem; font-size: 0.7rem; }
         }
 
         @media (max-width: 480px) {
-            .logo .brand {
-                font-size: 1rem;
-            }
-            .tab-btn {
-                font-size: 0.55rem;
-                padding: 0.15rem 0.4rem;
-            }
-            .stats-bar .stat {
-                font-size: 0.6rem;
-            }
-            .msg-content {
-                font-size: 0.75rem;
-            }
-            .section-title {
-                font-size: 0.85rem;
-            }
+            .logo .brand { font-size: 1rem; }
+            .tab-btn { font-size: 0.55rem; padding: 0.15rem 0.4rem; }
+            .stats-bar .stat { font-size: 0.6rem; }
+            .msg-content { font-size: 0.75rem; }
+            .section-title { font-size: 0.85rem; }
         }
 
         .focus-mode .stats-bar { display: none; }
@@ -1080,7 +1034,6 @@
     <!-- SITE -->
     <div class="site-content" id="siteContent" style="display:none;">
 
-        <!-- HEADER -->
         <header class="header">
             <div class="header-left">
                 <div class="logo">
@@ -1103,10 +1056,8 @@
             </div>
         </header>
 
-        <!-- CONTAINER -->
         <div class="container">
 
-            <!-- STATS -->
             <div class="stats-bar">
                 <div class="stat"><i class="fas fa-message"></i> Mensagens <span class="num" id="totalMessages">0</span></div>
                 <div class="stat"><i class="fas fa-tag"></i> Categorias <span class="num" id="totalCategories">0</span></div>
@@ -1114,7 +1065,6 @@
                 <div class="stat"><i class="fas fa-star"></i> Favoritas <span class="num" id="favoritesCount">0</span></div>
             </div>
 
-            <!-- PROGRESS -->
             <div class="progress-wrapper">
                 <div class="progress-label">
                     <span>📊 Progresso do expediente</span>
@@ -1125,7 +1075,6 @@
                 </div>
             </div>
 
-            <!-- TOOLBAR -->
             <div class="toolbar">
                 <div class="filter-bar">
                     <button class="filter-btn active" data-filter="all">📌 Todas</button>
@@ -1139,15 +1088,11 @@
                 <button class="btn-add" id="btnAddMsg"><i class="fas fa-plus"></i> Nova</button>
             </div>
 
-            <!-- TABS -->
             <div class="tabs-wrapper" id="tabsWrapper"></div>
-
-            <!-- TAB CONTENT -->
             <div id="tabContainer"></div>
 
         </div>
 
-        <!-- FOOTER -->
         <footer class="footer">
             <p>📋 <span>WebLink+ Fibra</span> — Painel de Atendimento</p>
             <p style="margin-top:0.1rem;opacity:0.5;font-size:0.6rem;">Copie e cole com agilidade no atendimento</p>
@@ -1183,7 +1128,7 @@
         </div>
     </div>
 
-    <!-- MODAL USUÁRIOS (SÓ ADMIN) -->
+    <!-- MODAL USUÁRIOS -->
     <div class="modal-overlay" id="usersModalOverlay">
         <div class="modal" style="max-width:700px;">
             <div class="modal-head">
@@ -1234,7 +1179,7 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             // =============================================================
-            // USUÁRIOS PADRÃO (o bernardoaam é o admin master)
+            // USUÁRIOS PADRÃO
             // =============================================================
             const DEFAULT_USERS = {
                 'bernardoaam': { senha: 'Db880559@', nome: 'Bernardo', role: 'admin' },
@@ -1345,7 +1290,7 @@
             });
 
             // =============================================================
-            // GERENCIAR USUÁRIOS (SÓ ADMIN)
+            // GERENCIAR USUÁRIOS
             // =============================================================
             const usersModalOverlay = document.getElementById('usersModalOverlay');
             const usersTableContainer = document.getElementById('usersTableContainer');
@@ -1476,7 +1421,7 @@
             });
 
             // =============================================================
-            // FUNÇÃO PARA PEGAR O NOME DO ATENDENTE
+            // FUNÇÕES AUXILIARES
             // =============================================================
             function getAtendenteNome() {
                 if (currentAtendente) return currentAtendente;
@@ -1493,7 +1438,21 @@
             }
 
             // =============================================================
-            // MENSAGENS (SEM EMOJIS)
+            // SUGESTÃO AUTOMÁTICA POR HORÁRIO
+            // =============================================================
+            function getSugestaoPorHorario() {
+                const hora = new Date().getHours();
+                if (hora >= 5 && hora < 12) {
+                    return { label: 'Bom dia', texto: 'Bom dia' };
+                } else if (hora >= 12 && hora < 18) {
+                    return { label: 'Boa tarde', texto: 'Boa tarde' };
+                } else {
+                    return { label: 'Boa noite', texto: 'Boa noite' };
+                }
+            }
+
+            // =============================================================
+            // MENSAGENS
             // =============================================================
             const DEFAULT_MESSAGES = [
                 { id: 'm1', category: 'abertura', label: 'Bom dia',
@@ -1685,6 +1644,9 @@
                 });
             }
 
+            // =============================================================
+            // RENDER MENSAGENS COM SUGESTÃO POR HORÁRIO
+            // =============================================================
             function renderMessages() {
                 const container = document.getElementById('tabContainer');
                 const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1702,7 +1664,13 @@
                     filtered = filtered.filter(m => favorites.includes(m.id));
                 }
 
+                const sugestao = getSugestaoPorHorario();
+
                 filtered.sort((a, b) => {
+                    const aSugerida = a.label === sugestao.label ? 0 : 1;
+                    const bSugerida = b.label === sugestao.label ? 0 : 1;
+                    if (aSugerida !== bSugerida) return aSugerida - bSugerida;
+
                     const aFav = favorites.includes(a.id) ? 0 : 1;
                     const bFav = favorites.includes(b.id) ? 0 : 1;
                     return aFav - bFav;
@@ -1727,8 +1695,10 @@
                 filtered.forEach(msg => {
                     const isFav = favorites.includes(msg.id);
                     const displayText = processMessageText(msg.text);
+                    const isSugerida = msg.label === sugestao.label;
+
                     html += `
-                        <div class="msg-card">
+                        <div class="msg-card ${isSugerida ? 'sugerida' : ''}">
                             <div class="msg-content">
                                 <span class="label">${msg.label}</span>
                                 ${displayText}
@@ -1943,11 +1913,13 @@
                 updateStats();
                 populateCategorySelect();
                 const nome = getAtendenteNome();
+                const sugestao = getSugestaoPorHorario();
                 console.log(`Site WebLink+ Atendimento carregado com sucesso!`);
                 console.log(`Atendente: ${nome}`);
                 console.log(`Tipo: ${currentRole}`);
                 console.log(`${messages.length} mensagens carregadas`);
-                toast(`Bem-vindo(a), ${nome}! Use Ctrl+1 a Ctrl+8 para navegar`, 'info');
+                console.log(`Sugestão do horário: ${sugestao.texto}`);
+                toast(`Bem-vindo(a), ${nome}! Sugestão: "${sugestao.texto}"`, 'success');
             }
 
             if (sessionStorage.getItem('loggedIn') === 'true') {
