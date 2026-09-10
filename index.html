@@ -859,6 +859,69 @@
             font-weight: 600;
         }
 
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .user-table th {
+            background: var(--primary);
+            color: #fff;
+            padding: 0.7rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .user-table td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+        .user-table tr:last-child td {
+            border-bottom: none;
+        }
+        .user-table tr:hover {
+            background: var(--primary-glow);
+        }
+        .user-table .badge-role {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+        .badge-role.admin {
+            background: rgba(245, 138, 31, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(245, 138, 31, 0.3);
+        }
+        .badge-role.atendente {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .user-table .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition);
+        }
+        .user-table .action-btn.edit { color: var(--info); }
+        .user-table .action-btn.edit:hover { background: rgba(59, 130, 246, 0.1); }
+        .user-table .action-btn.delete { color: var(--danger); }
+        .user-table .action-btn.delete:hover { background: rgba(239, 68, 68, 0.1); }
+
         @media (max-width: 768px) {
             .header {
                 padding: 0.5rem 1rem;
@@ -941,6 +1004,11 @@
             .modal {
                 padding: 1rem;
                 margin: 1rem;
+            }
+            .user-table th,
+            .user-table td {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.7rem;
             }
         }
 
@@ -1027,6 +1095,7 @@
             </div>
             <div class="header-right">
                 <div class="clock" id="clockDisplay">⏰ 00:00:00</div>
+                <button class="btn-icon" id="usersBtn" title="Gerenciar Usuários" style="display:none;"><i class="fas fa-users-cog"></i></button>
                 <button class="btn-icon" id="darkToggle" title="Modo escuro"><i class="fas fa-moon"></i></button>
                 <button class="btn-icon" id="focusToggle" title="Modo foco"><i class="fas fa-expand"></i></button>
                 <button class="btn-icon" id="favFilterBtn" title="Favoritos"><i class="fas fa-star"></i> <span class="badge" id="favCount">0</span></button>
@@ -1086,7 +1155,7 @@
 
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL MENSAGEM -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-head">
@@ -1114,19 +1183,73 @@
         </div>
     </div>
 
+    <!-- MODAL USUÁRIOS (SÓ ADMIN) -->
+    <div class="modal-overlay" id="usersModalOverlay">
+        <div class="modal" style="max-width:700px;">
+            <div class="modal-head">
+                <h2>👥 Gerenciar Usuários</h2>
+                <button class="close" id="usersModalClose">&times;</button>
+            </div>
+            <button class="btn-add" id="btnAddUser" style="margin-bottom:1rem;"><i class="fas fa-user-plus"></i> Novo Usuário</button>
+            <div id="usersTableContainer"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR/EDITAR USUÁRIO -->
+    <div class="modal-overlay" id="userFormOverlay">
+        <div class="modal" style="max-width:450px;">
+            <div class="modal-head">
+                <h2 id="userFormTitle">Novo Usuário</h2>
+                <button class="close" id="userFormClose">&times;</button>
+            </div>
+            <form id="userForm">
+                <div class="field">
+                    <label>👤 Nome de Usuário (login)</label>
+                    <input type="text" id="userFormUsername" placeholder="Ex: joao.silva" required />
+                </div>
+                <div class="field">
+                    <label>📝 Nome do Atendente</label>
+                    <input type="text" id="userFormNome" placeholder="Ex: João Silva" required />
+                </div>
+                <div class="field">
+                    <label>🔑 Senha</label>
+                    <input type="text" id="userFormSenha" placeholder="Digite a senha" required />
+                </div>
+                <div class="field">
+                    <label>🎭 Tipo de Usuário</label>
+                    <select id="userFormRole">
+                        <option value="atendente">Atendente</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel" id="userFormCancel">Cancelar</button>
+                    <button type="submit" class="save" id="userFormSave">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
             // =============================================================
-            // USUÁRIOS
+            // USUÁRIOS PADRÃO (o bernardoaam é o admin master)
             // =============================================================
-            const USERS = {
-                'bernardoaam': { senha: 'Db880559@', nome: 'Bernardo' },
-                'joyce': { senha: '12345678', nome: 'Joyce' }
+            const DEFAULT_USERS = {
+                'bernardoaam': { senha: 'Db880559@', nome: 'Bernardo', role: 'admin' },
+                'joyce': { senha: '12345678', nome: 'Joyce', role: 'atendente' }
             };
+
+            let USERS = JSON.parse(localStorage.getItem('weblink_users')) || DEFAULT_USERS;
+
+            function saveUsers() {
+                localStorage.setItem('weblink_users', JSON.stringify(USERS));
+            }
 
             let currentUser = null;
             let currentAtendente = null;
+            let currentRole = null;
 
             // =============================================================
             // LOGIN
@@ -1142,12 +1265,17 @@
             if (sessionStorage.getItem('loggedIn') === 'true') {
                 const savedUser = sessionStorage.getItem('currentUser');
                 const savedAtendente = sessionStorage.getItem('currentAtendente');
+                const savedRole = sessionStorage.getItem('currentRole');
                 if (savedUser && USERS[savedUser]) {
                     currentUser = savedUser;
                     currentAtendente = savedAtendente || USERS[savedUser].nome;
+                    currentRole = savedRole || USERS[savedUser].role;
                     loginScreen.classList.add('hidden');
                     siteContent.style.display = 'block';
                     document.getElementById('atendenteNome').textContent = currentAtendente;
+                    if (currentRole === 'admin') {
+                        document.getElementById('usersBtn').style.display = 'flex';
+                    }
                 }
             }
 
@@ -1165,13 +1293,24 @@
                 if (USERS[user] && USERS[user].senha === pass) {
                     currentUser = user;
                     currentAtendente = atendente;
+                    currentRole = USERS[user].role;
+
                     sessionStorage.setItem('loggedIn', 'true');
                     sessionStorage.setItem('currentUser', user);
                     sessionStorage.setItem('currentAtendente', atendente);
+                    sessionStorage.setItem('currentRole', currentRole);
+
                     loginScreen.classList.add('hidden');
                     siteContent.style.display = 'block';
                     document.getElementById('atendenteNome').textContent = atendente;
                     loginError.classList.remove('show');
+
+                    if (currentRole === 'admin') {
+                        document.getElementById('usersBtn').style.display = 'flex';
+                    } else {
+                        document.getElementById('usersBtn').style.display = 'none';
+                    }
+
                     initSite();
                     toast(`👤 Bem-vindo(a), ${atendente}!`, 'success');
                 } else {
@@ -1191,33 +1330,160 @@
                     sessionStorage.removeItem('loggedIn');
                     sessionStorage.removeItem('currentUser');
                     sessionStorage.removeItem('currentAtendente');
+                    sessionStorage.removeItem('currentRole');
                     currentUser = null;
                     currentAtendente = null;
+                    currentRole = null;
                     loginScreen.classList.remove('hidden');
                     siteContent.style.display = 'none';
                     loginUser.value = '';
                     loginPass.value = '';
                     loginAtendente.value = '';
                     loginError.classList.remove('show');
+                    document.getElementById('usersBtn').style.display = 'none';
                 }
+            });
+
+            // =============================================================
+            // GERENCIAR USUÁRIOS (SÓ ADMIN)
+            // =============================================================
+            const usersModalOverlay = document.getElementById('usersModalOverlay');
+            const usersTableContainer = document.getElementById('usersTableContainer');
+            const userFormOverlay = document.getElementById('userFormOverlay');
+            let editingUser = null;
+
+            document.getElementById('usersBtn').addEventListener('click', function() {
+                if (currentRole !== 'admin') {
+                    toast('Apenas administradores podem gerenciar usuários.', 'error');
+                    return;
+                }
+                renderUsersTable();
+                usersModalOverlay.classList.add('open');
+            });
+
+            document.getElementById('usersModalClose').addEventListener('click', function() {
+                usersModalOverlay.classList.remove('open');
+            });
+            usersModalOverlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('open');
+            });
+
+            function renderUsersTable() {
+                const users = Object.entries(USERS);
+                let html = `<table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th style="text-align:center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                users.forEach(([username, data]) => {
+                    const roleLabel = data.role === 'admin' ? 'Administrador' : 'Atendente';
+                    const roleClass = data.role === 'admin' ? 'admin' : 'atendente';
+                    const isMaster = username === 'bernardoaam';
+                    html += `<tr>
+                        <td>${username}</td>
+                        <td>${data.nome}</td>
+                        <td><span class="badge-role ${roleClass}">${roleLabel}</span></td>
+                        <td style="text-align:center;">
+                            <button class="action-btn edit" onclick="editUser('${username}')" title="Editar"><i class="fas fa-pen"></i></button>
+                            ${isMaster ? '' : `<button class="action-btn delete" onclick="deleteUser('${username}')" title="Excluir"><i class="fas fa-trash"></i></button>`}
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+                usersTableContainer.innerHTML = html;
+            }
+
+            document.getElementById('btnAddUser').addEventListener('click', function() {
+                editingUser = null;
+                document.getElementById('userFormTitle').textContent = 'Novo Usuário';
+                document.getElementById('userFormUsername').value = '';
+                document.getElementById('userFormUsername').disabled = false;
+                document.getElementById('userFormNome').value = '';
+                document.getElementById('userFormSenha').value = '';
+                document.getElementById('userFormRole').value = 'atendente';
+                userFormOverlay.classList.add('open');
+            });
+
+            document.getElementById('userFormClose').addEventListener('click', function() {
+                userFormOverlay.classList.remove('open');
+            });
+            document.getElementById('userFormCancel').addEventListener('click', function() {
+                userFormOverlay.classList.remove('open');
+            });
+            userFormOverlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('open');
+            });
+
+            window.editUser = function(username) {
+                const data = USERS[username];
+                if (!data) return;
+                editingUser = username;
+                document.getElementById('userFormTitle').textContent = 'Editar Usuário';
+                document.getElementById('userFormUsername').value = username;
+                document.getElementById('userFormUsername').disabled = true;
+                document.getElementById('userFormNome').value = data.nome;
+                document.getElementById('userFormSenha').value = data.senha;
+                document.getElementById('userFormRole').value = data.role;
+                userFormOverlay.classList.add('open');
+            };
+
+            window.deleteUser = function(username) {
+                if (username === 'bernardoaam') {
+                    toast('Não é possível excluir o usuário master.', 'error');
+                    return;
+                }
+                if (confirm(`Deseja realmente excluir o usuário "${username}"?`)) {
+                    delete USERS[username];
+                    saveUsers();
+                    renderUsersTable();
+                    toast('Usuário excluído!', 'success');
+                }
+            };
+
+            document.getElementById('userForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('userFormUsername').value.trim().toLowerCase();
+                const nome = document.getElementById('userFormNome').value.trim();
+                const senha = document.getElementById('userFormSenha').value.trim();
+                const role = document.getElementById('userFormRole').value;
+
+                if (!username || !nome || !senha) {
+                    toast('Preencha todos os campos!', 'warning');
+                    return;
+                }
+
+                if (editingUser) {
+                    USERS[editingUser] = { senha, nome, role };
+                    saveUsers();
+                    toast('Usuário atualizado!', 'success');
+                } else {
+                    if (USERS[username]) {
+                        toast('Este usuário já existe!', 'error');
+                        return;
+                    }
+                    USERS[username] = { senha, nome, role };
+                    saveUsers();
+                    toast('Usuário criado!', 'success');
+                }
+
+                userFormOverlay.classList.remove('open');
+                renderUsersTable();
             });
 
             // =============================================================
             // FUNÇÃO PARA PEGAR O NOME DO ATENDENTE
             // =============================================================
             function getAtendenteNome() {
-                if (currentAtendente) {
-                    return currentAtendente;
-                }
-                if (currentUser && USERS[currentUser]) {
-                    return USERS[currentUser].nome;
-                }
+                if (currentAtendente) return currentAtendente;
+                if (currentUser && USERS[currentUser]) return USERS[currentUser].nome;
                 return 'Atendente';
             }
 
-            // =============================================================
-            // FUNÇÃO PARA SUBSTITUIR O NOME NA MENSAGEM
-            // =============================================================
             function processMessageText(text) {
                 const nome = getAtendenteNome();
                 let result = text.replace(/{atendente}/g, nome);
@@ -1227,29 +1493,24 @@
             }
 
             // =============================================================
-            // TODAS AS MENSAGENS DO WORD (46 mensagens) - SEM EMOJIS
+            // MENSAGENS (SEM EMOJIS)
             // =============================================================
-
             const DEFAULT_MESSAGES = [
-                // ===== ABERTURA (3) =====
                 { id: 'm1', category: 'abertura', label: 'Bom dia',
                     text: 'Olá, bom dia! Tudo bem?\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
                 { id: 'm2', category: 'abertura', label: 'Boa tarde',
                     text: 'Olá, boa tarde! Tudo bem?\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
                 { id: 'm3', category: 'abertura', label: 'Boa noite',
                     text: 'Olá, boa noite! Tudo bem?\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
+                { id: 'm4', category: 'encerramento', label: 'Dia',
+                    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\nObrigado e tenha um ótimo dia!' },
+                { id: 'm5', category: 'encerramento', label: 'Tarde',
+                    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\nObrigado e tenha uma ótima tarde!' },
+                { id: 'm6', category: 'encerramento', label: 'Noite',
+                    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\nObrigado e tenha uma ótima noite!' },
+                { id: 'm7', category: 'encerramento', label: 'Sem retorno',
+                    text: 'Como não tivemos retorno por um tempo, vou encerrar por aqui.\nSe precisar, estou à disposição!' },
 
-                // ===== ENCERRAMENTO (4) =====
-{ id: 'm4', category: 'encerramento', label: 'Dia',
-    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\nObrigado e tenha um ótimo dia!' },
-{ id: 'm5', category: 'encerramento', label: 'Tarde',
-    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\nObrigado e tenha uma ótima tarde!' },
-{ id: 'm6', category: 'encerramento', label: 'Noite',
-    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\nObrigado e tenha uma ótima noite!' },
-{ id: 'm7', category: 'encerramento', label: 'Sem retorno',
-    text: 'Como não tivemos retorno por um tempo, vou encerrar por aqui.\nSe precisar, estou à disposição!' },
-
-                // ===== SUPORTE (19) =====
                 { id: 'm8', category: 'suporte', label: 'Coleta de informações',
                     text: 'Vou te ajudar da melhor forma possível.\nPode me passar alguns detalhes?\n\nEstá com lentidão, quedas ou oscilações?\nAcontece em qual horário? Desde quando?\nÉ em todos os dispositivos (celular, TV, computador)?\nÉ na casa toda ou em pontos específicos?\nOcorre em algum app específico?\nAssim consigo analisar e te ajudar mais rápido!' },
                 { id: 'm9', category: 'suporte', label: 'Coleta (variação)',
@@ -1289,7 +1550,6 @@
                 { id: 'm26', category: 'suporte', label: 'Verificar viabilidade',
                     text: 'VERIFICAR VIABILIDADE:\nPROPRIETÁRIO:\nCONTATO:\nNOME DA FAZENDA:\nQUANTOS KM DA CIDADE:\nREFERÊNCIA DA LOCALIZAÇÃO:\nEQUIPAMENTOS:' },
 
-                // ===== CHECKLIST (6) =====
                 { id: 'm27', category: 'checklist', label: 'Checklist conexão',
                     text: 'CHECKLIST -- ABERTURA DE ATENDIMENTO (PROBLEMAS DE CONEXÃO)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nPROBLEMA RELATADO:\nPOSSUI CONEXÃO CABEADA:\nSUPORTE REMOTO REALIZADO:\nSINAL DA FIBRA:\nTX:\nRX:' },
                 { id: 'm28', category: 'checklist', label: 'Sem conexão',
@@ -1303,7 +1563,6 @@
                 { id: 'm32', category: 'checklist', label: 'Ativação streaming',
                     text: 'CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ATIVAÇÃO DE STREAMING)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nSERVIÇO ATIVADO:\n(DEEZER / DISNEY+ / HBO MAX)\nE-MAIL CADASTRADO:\nSENHA CADASTRADA:\nATIVAÇÃO CONCLUÍDA' },
 
-                // ===== FINANCEIRO (4) =====
                 { id: 'm33', category: 'financeiro', label: 'Mudança de endereço',
                     text: 'Para mudança de endereço, me informe:\n\nNome completo do titular:\nCidade:\nBairro:\nRua:\nNúmero da casa:\n\nComo será feita uma nova instalação, temos uma taxa simbólica de R$100,00 a prazo.\nÀ vista conseguimos um desconto, ficando por R$70,00.\nBoa notícia: Se a casa já teve uma instalação da WebLink e for possível reutilizar o cabo, não haverá taxa!\n\nOs equipamentos (roteador e ONU) precisam estar no novo endereço na hora do atendimento.' },
                 { id: 'm34', category: 'financeiro', label: 'Desbloqueio em confiança',
@@ -1313,7 +1572,6 @@
                 { id: 'm36', category: 'financeiro', label: 'Liberação com comprovante',
                     text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU LIBERAÇÃO MEDIANTE COMPROVANTE DE PAGAMENTO.\nCOMPROVANTE ANEXADO E CONEXÃO LIBERADA.' },
 
-                // ===== STREAMING (6) =====
                 { id: 'm37', category: 'streaming', label: 'WebLink TV 1',
                     text: 'Para acessar pelo CDN TV você primeiro precisa seguir esse passo a passo:\n\n1. Escolha do Provedor:\n- Ao acessar a plataforma, será solicitado que você selecione um provedor.\n- No campo de pesquisa, digite WEBLINK.\n\n2. Selecione a Opção Correta:\n- Duas opções devem aparecer, selecione a segunda opção: (WEBLINK TV) tv.weblinknet.com.br\n\n3. Login:\n- Depois disso, apenas digite os seus acessos:\n- Usuário:\n- Senha:\n\nApós o login, você terá acesso a todo conteúdo disponível.' },
                 { id: 'm38', category: 'streaming', label: 'WebLink TV 2',
@@ -1327,13 +1585,11 @@
                 { id: 'm42', category: 'streaming', label: 'Deezer',
                     text: 'Foi adicionada a sua licença por aqui!\nO Deezer irá enviar um e-mail para você ativar a sua conta e realizar o seu acesso.\nCaso não receba em até 24 horas, pode me chamar por aqui que te ajudo.\n\nPara fazer o seu cadastro no Deezer, clique nesse link: https://www.deezer.com/br/activate/stennabr\n\n1. Primeiro, digite o seu CPF.\n2. Depois, informe o seu número de telefone.\n3. Em seguida, selecione a opção "Cadastre-se".\n4. Insira os seus dados pessoais e faça o seu cadastro.\n\nDivirta-se ouvindo suas músicas favoritas!' },
 
-                // ===== PAUSA (2) =====
                 { id: 'm43', category: 'pausa', label: 'Intervalo 2h',
                     text: 'Estou saindo para o meu intervalo de 2 horas, porém deixarei seu atendimento em aberto para continuarmos quando eu retornar.\n\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.' },
                 { id: 'm44', category: 'pausa', label: 'Encerrando expediente',
                     text: 'Meu expediente se encerra agora, deixarei seu atendimento em aberto para continuarmos amanhã às 08:00.\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.\nTenha uma ótima noite!' },
 
-                // ===== EVENTOS (2) =====
                 { id: 'm45', category: 'eventos', label: 'Solicitação evento',
                     text: 'INSTALAR EQUIPAMENTOS DE EVENTO PARA COBERTURA DE INTERNET\n\nDESCRIÇÃO DO EVENTO:\nLOCAL DO EVENTO:\nDATA DO EVENTO:\nRESPONSÁVEL:\nQUANTIDADE DE PESSOAS PREVISTA:\nINTERNET SERÁ UTILIZADA PARA: (PAGAMENTOS PIX, ACESSO AO PÚBLICO, TRANSMISSÕES AO VIVO)\nNECESSÁRIO ESPAÇO PARA BALÃO OU TENDA:' },
                 { id: 'm46', category: 'eventos', label: 'Retirada equipamentos',
@@ -1350,10 +1606,6 @@
                 { id: 'pausa', name: 'Pausa', shortcut: '7' },
                 { id: 'eventos', name: 'Eventos', shortcut: '8' }
             ];
-
-            // =============================================================
-            // ESTADO
-            // =============================================================
 
             let messages = JSON.parse(localStorage.getItem('weblink_messages')) || DEFAULT_MESSAGES;
             let categories = JSON.parse(localStorage.getItem('weblink_categories')) || DEFAULT_CATEGORIES;
@@ -1373,14 +1625,8 @@
                 localStorage.setItem('lastDate', today);
             }
 
-            // =============================================================
-            // FUNÇÕES
-            // =============================================================
-
             function saveMessages() { localStorage.setItem('weblink_messages', JSON.stringify(messages)); }
-
             function saveFavorites() { localStorage.setItem('weblink_favorites', JSON.stringify(favorites)); }
-
             function saveCopied() { localStorage.setItem('copiedToday', String(copiedToday)); }
 
             function updateStats() {
@@ -1421,10 +1667,6 @@
                 });
             }
 
-            // =============================================================
-            // RENDER
-            // =============================================================
-
             function renderTabs() {
                 const wrapper = document.getElementById('tabsWrapper');
                 wrapper.innerHTML = '';
@@ -1432,8 +1674,7 @@
                     const btn = document.createElement('button');
                     btn.className = `tab-btn ${cat.id === currentTab ? 'active' : ''}`;
                     const count = messages.filter(m => m.category === cat.id).length;
-                    btn.innerHTML =
-                        `${cat.name} <span class="count">${count}</span> <span class="shortcut">(Ctrl+${cat.shortcut})</span>`;
+                    btn.innerHTML = `${cat.name} <span class="count">${count}</span> <span class="shortcut">(Ctrl+${cat.shortcut})</span>`;
                     btn.dataset.tab = cat.id;
                     btn.addEventListener('click', () => {
                         currentTab = cat.id;
@@ -1514,10 +1755,6 @@
                 document.getElementById('resultCount').textContent = filtered.length;
             }
 
-            // =============================================================
-            // AÇÕES
-            // =============================================================
-
             window.copyMsg = function(id) {
                 const msg = messages.find(m => m.id === id);
                 if (!msg) return;
@@ -1526,10 +1763,8 @@
                     copiedToday++;
                     saveCopied();
                     updateStats();
-
                     document.querySelectorAll('.copy-btn').forEach(btn => {
-                        if (btn.closest('.msg-card')?.querySelector('.fav-btn')?.onclick?.toString()
-                            .includes(id)) {
+                        if (btn.closest('.msg-card')?.querySelector('.fav-btn')?.onclick?.toString().includes(id)) {
                             btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
                             btn.classList.add('copied');
                             setTimeout(() => {
@@ -1572,10 +1807,6 @@
                 document.getElementById('modalOverlay').classList.add('open');
             };
 
-            // =============================================================
-            // MODAL
-            // =============================================================
-
             document.getElementById('btnAddMsg').addEventListener('click', function() {
                 editingId = null;
                 document.getElementById('modalTitle').textContent = 'Nova Mensagem';
@@ -1599,16 +1830,13 @@
 
             document.getElementById('msgForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-
                 const category = document.getElementById('formCategory').value;
                 const label = document.getElementById('formLabel').value.trim();
                 const text = document.getElementById('formMessage').value.trim();
-
                 if (!category || !label || !text) {
                     toast('Preencha todos os campos!', 'warning');
                     return;
                 }
-
                 if (editingId) {
                     const idx = messages.findIndex(m => m.id === editingId);
                     if (idx > -1) {
@@ -1617,26 +1845,16 @@
                         toast('Mensagem atualizada!', 'success');
                     }
                 } else {
-                    const newMsg = {
-                        id: 'm' + Date.now(),
-                        category,
-                        label,
-                        text
-                    };
+                    const newMsg = { id: 'm' + Date.now(), category, label, text };
                     messages.push(newMsg);
                     saveMessages();
                     toast('Mensagem adicionada!', 'success');
                 }
-
                 document.getElementById('modalOverlay').classList.remove('open');
                 renderTabs();
                 renderMessages();
                 updateStats();
             });
-
-            // =============================================================
-            // TOAST
-            // =============================================================
 
             function toast(msg, type = 'info') {
                 let container = document.getElementById('toastContainer');
@@ -1657,10 +1875,6 @@
                     setTimeout(() => el.remove(), 300);
                 }, 3000);
             }
-
-            // =============================================================
-            // FILTROS
-            // =============================================================
 
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -1683,19 +1897,11 @@
                 renderMessages();
             });
 
-            // =============================================================
-            // FOCUS MODE
-            // =============================================================
-
             document.getElementById('focusToggle').addEventListener('click', function() {
                 isFocusMode = !isFocusMode;
                 document.body.classList.toggle('focus-mode', isFocusMode);
                 this.innerHTML = isFocusMode ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
             });
-
-            // =============================================================
-            // DARK MODE
-            // =============================================================
 
             if (localStorage.getItem('darkMode') === 'true') {
                 document.body.classList.add('dark');
@@ -1708,10 +1914,6 @@
                 localStorage.setItem('darkMode', isDark);
                 this.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             });
-
-            // =============================================================
-            // ATALHOS
-            // =============================================================
 
             document.addEventListener('keydown', function(e) {
                 if (e.ctrlKey) {
@@ -1731,10 +1933,6 @@
                 }
             });
 
-            // =============================================================
-            // INICIALIZAÇÃO
-            // =============================================================
-
             function initSite() {
                 setInterval(updateClock, 1000);
                 setInterval(updateProgress, 60000);
@@ -1747,6 +1945,7 @@
                 const nome = getAtendenteNome();
                 console.log(`Site WebLink+ Atendimento carregado com sucesso!`);
                 console.log(`Atendente: ${nome}`);
+                console.log(`Tipo: ${currentRole}`);
                 console.log(`${messages.length} mensagens carregadas`);
                 toast(`Bem-vindo(a), ${nome}! Use Ctrl+1 a Ctrl+8 para navegar`, 'info');
             }
@@ -1754,10 +1953,15 @@
             if (sessionStorage.getItem('loggedIn') === 'true') {
                 const savedUser = sessionStorage.getItem('currentUser');
                 const savedAtendente = sessionStorage.getItem('currentAtendente');
+                const savedRole = sessionStorage.getItem('currentRole');
                 if (savedUser && USERS[savedUser]) {
                     currentUser = savedUser;
                     currentAtendente = savedAtendente || USERS[savedUser].nome;
+                    currentRole = savedRole || USERS[savedUser].role;
                     document.getElementById('atendenteNome').textContent = currentAtendente;
+                    if (currentRole === 'admin') {
+                        document.getElementById('usersBtn').style.display = 'flex';
+                    }
                 }
                 initSite();
             }
