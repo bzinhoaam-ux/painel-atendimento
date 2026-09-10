@@ -996,6 +996,13 @@
                     <input type="password" id="loginPass" placeholder="Digite sua senha" />
                 </div>
             </div>
+            <div class="field">
+                <label>📝 Nome do Atendente</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-id-badge"></i>
+                    <input type="text" id="loginAtendente" placeholder="Ex: Bernardo, Joyce, Maria..." />
+                </div>
+            </div>
             <div class="error-msg" id="loginError">❌ Usuário ou senha inválidos!</div>
             <button class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Entrar</button>
             <div class="footer-login"><strong>WebLink+</strong> — Acesso restrito a colaboradores</div>
@@ -1093,7 +1100,7 @@
                 </div>
                 <div class="field">
                     <label>🏷️ Label (etiqueta)</label>
-                    <input type="text" id="formLabel" placeholder="Ex: ☀️ Bom dia" required />
+                    <input type="text" id="formLabel" placeholder="Ex: Bom dia" required />
                 </div>
                 <div class="field">
                     <label>📝 Mensagem</label>
@@ -1119,6 +1126,7 @@
             };
 
             let currentUser = null;
+            let currentAtendente = null;
 
             // =============================================================
             // LOGIN
@@ -1127,34 +1135,47 @@
             const siteContent = document.getElementById('siteContent');
             const loginUser = document.getElementById('loginUser');
             const loginPass = document.getElementById('loginPass');
+            const loginAtendente = document.getElementById('loginAtendente');
             const loginBtn = document.getElementById('loginBtn');
             const loginError = document.getElementById('loginError');
 
             if (sessionStorage.getItem('loggedIn') === 'true') {
                 const savedUser = sessionStorage.getItem('currentUser');
+                const savedAtendente = sessionStorage.getItem('currentAtendente');
                 if (savedUser && USERS[savedUser]) {
                     currentUser = savedUser;
+                    currentAtendente = savedAtendente || USERS[savedUser].nome;
                     loginScreen.classList.add('hidden');
                     siteContent.style.display = 'block';
-                    document.getElementById('atendenteNome').textContent = USERS[savedUser].nome;
+                    document.getElementById('atendenteNome').textContent = currentAtendente;
                 }
             }
 
             loginBtn.addEventListener('click', function() {
                 const user = loginUser.value.trim().toLowerCase();
                 const pass = loginPass.value.trim();
+                const atendente = loginAtendente.value.trim();
+
+                if (!atendente) {
+                    loginError.textContent = '❌ Por favor, informe o nome do atendente!';
+                    loginError.classList.add('show');
+                    return;
+                }
 
                 if (USERS[user] && USERS[user].senha === pass) {
                     currentUser = user;
+                    currentAtendente = atendente;
                     sessionStorage.setItem('loggedIn', 'true');
                     sessionStorage.setItem('currentUser', user);
+                    sessionStorage.setItem('currentAtendente', atendente);
                     loginScreen.classList.add('hidden');
                     siteContent.style.display = 'block';
-                    document.getElementById('atendenteNome').textContent = USERS[user].nome;
+                    document.getElementById('atendenteNome').textContent = atendente;
                     loginError.classList.remove('show');
                     initSite();
-                    toast(`👤 Bem-vindo(a), ${USERS[user].nome}!`, 'success');
+                    toast(`👤 Bem-vindo(a), ${atendente}!`, 'success');
                 } else {
+                    loginError.textContent = '❌ Usuário ou senha inválidos!';
                     loginError.classList.add('show');
                     loginPass.value = '';
                     loginPass.focus();
@@ -1163,16 +1184,20 @@
 
             loginPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
             loginUser.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
+            loginAtendente.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
 
             document.getElementById('logoutBtn').addEventListener('click', function() {
                 if (confirm('Deseja realmente sair?')) {
                     sessionStorage.removeItem('loggedIn');
                     sessionStorage.removeItem('currentUser');
+                    sessionStorage.removeItem('currentAtendente');
                     currentUser = null;
+                    currentAtendente = null;
                     loginScreen.classList.remove('hidden');
                     siteContent.style.display = 'none';
                     loginUser.value = '';
                     loginPass.value = '';
+                    loginAtendente.value = '';
                     loginError.classList.remove('show');
                 }
             });
@@ -1181,10 +1206,13 @@
             // FUNÇÃO PARA PEGAR O NOME DO ATENDENTE
             // =============================================================
             function getAtendenteNome() {
+                if (currentAtendente) {
+                    return currentAtendente;
+                }
                 if (currentUser && USERS[currentUser]) {
                     return USERS[currentUser].nome;
                 }
-                return 'Bernardo';
+                return 'Atendente';
             }
 
             // =============================================================
@@ -1199,128 +1227,128 @@
             }
 
             // =============================================================
-            // TODAS AS MENSAGENS DO WORD (46 mensagens)
+            // TODAS AS MENSAGENS DO WORD (46 mensagens) - SEM EMOJIS
             // =============================================================
 
             const DEFAULT_MESSAGES = [
                 // ===== ABERTURA (3) =====
-                { id: 'm1', category: 'abertura', label: '☀️ Bom dia',
-                    text: 'Olá, bom dia! Tudo bem? 😊\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
-                { id: 'm2', category: 'abertura', label: '🌤️ Boa tarde',
-                    text: 'Olá, boa tarde! Tudo bem? 😊\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
-                { id: 'm3', category: 'abertura', label: '🌙 Boa noite',
-                    text: 'Olá, boa noite! Tudo bem? 😊\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
+                { id: 'm1', category: 'abertura', label: 'Bom dia',
+                    text: 'Olá, bom dia! Tudo bem?\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
+                { id: 'm2', category: 'abertura', label: 'Boa tarde',
+                    text: 'Olá, boa tarde! Tudo bem?\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
+                { id: 'm3', category: 'abertura', label: 'Boa noite',
+                    text: 'Olá, boa noite! Tudo bem?\nSou {atendente}, atendente de suporte, estou iniciando o seu atendimento.\nComo posso te ajudar?' },
 
                 // ===== ENCERRAMENTO (4) =====
-                { id: 'm4', category: 'encerramento', label: '☀️ Dia',
-                    text: 'Vou encerrar nosso atendimento por agora 😊 Foi um prazer te ajudar!\nSe precisar, estou à disposição\n\nSua avaliação é muito importante para nós! Se puder, avalie o atendimento 🙏\nObrigado e tenha um ótimo dia! ☎️' },
-                { id: 'm5', category: 'encerramento', label: '🌤️ Tarde',
-                    text: 'Vou encerrar nosso atendimento por agora 😊 Foi um prazer te ajudar!\nSe precisar, estou à disposição\n\nSua avaliação é muito importante para nós! Se puder, avalie o atendimento 🙏\nObrigado e tenha uma ótima tarde! ☎️' },
-                { id: 'm6', category: 'encerramento', label: '🌙 Noite',
-                    text: 'Vou encerrar nosso atendimento por agora 😊 Foi um prazer te ajudar!\nSe precisar, estou à disposição\n\nSua avaliação é muito importante para nós! Se puder, avalie o atendimento 🙏\nObrigado e tenha uma ótima noite! ☎️' },
-                { id: 'm7', category: 'encerramento', label: '⏳ Sem retorno',
-                    text: 'Como não tivemos retorno por um tempo 😊 vou encerrar por aqui.\nSe precisar, estou à disposição!' },
+                { id: 'm4', category: 'encerramento', label: 'Dia',
+                    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\n\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\n\nObrigado e tenha um ótimo dia!' },
+                { id: 'm5', category: 'encerramento', label: 'Tarde',
+                    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\n\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\n\nObrigado e tenha uma ótima tarde!' },
+                { id: 'm6', category: 'encerramento', label: 'Noite',
+                    text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\n\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\n\nObrigado e tenha uma ótima noite!' },
+                { id: 'm7', category: 'encerramento', label: 'Sem retorno',
+                    text: 'Como não tivemos retorno por um tempo, vou encerrar por aqui.\nSe precisar, estou à disposição!' },
 
                 // ===== SUPORTE (19) =====
-                { id: 'm8', category: 'suporte', label: '📋 Coleta de informações',
-                    text: 'Vou te ajudar da melhor forma possível 😊\nPode me passar alguns detalhes?\n\n📉 Está com lentidão, quedas ou oscilações?\n⏰ Acontece em qual horário? Desde quando?\n📱💻 É em todos os dispositivos (celular, TV, computador)?\n🏡 É na casa toda ou em pontos específicos?\n📲 Ocorre em algum app específico?\nAssim consigo analisar e te ajudar mais rápido! 🚀' },
-                { id: 'm9', category: 'suporte', label: '📋 Coleta (variação)',
-                    text: 'Bom dia, tudo bem? 😊\n\nVocê pode me informar mais alguns detalhes, por favor?\n\n📉 Está com lentidão, quedas ou oscilações?\n⏰ Acontece em todos os horários? Desde quando começou?\n📱📺💻 O problema é em todos os aparelhos (celular, TV, computador) ou só em um?\n🏡 É na casa toda ou em um local específico?\n📲 Ocorre em algum aplicativo específico?\nCom essas informações, consigo analisar melhor e buscar uma solução mais rápida para você! 🚀' },
-                { id: 'm10', category: 'suporte', label: '🔧 Ajuste remoto',
-                    text: 'Fiz alguns ajustes na sua conexão remotamente 🔄\nA conexão vai reiniciar.\nApós a conexão voltar, desligue o Wi-Fi e ligue novamente no seu celular 📶\nFeche e abra os aplicativos novamente 📱\nSe for TV, desligue e ligue 📺\nPode testar e me dar um retorno por favor? 😊' },
-                { id: 'm11', category: 'suporte', label: '🚀 Liberação de conexão',
-                    text: 'Prontinho! Conexão liberada 🚀\nPode levar até 5 minutinhos para normalizar ⏳\nPosso te ajudar em algo mais? 😊' },
-                { id: 'm12', category: 'suporte', label: '🔄 Transferência',
-                    text: 'Vou transferir seu atendimento para o setor responsável 😊\nEles darão continuidade e vão te ajudar da melhor forma!' },
-                { id: 'm13', category: 'suporte', label: '🔄 Acompanhamento 1',
-                    text: 'Que bom que a conexão melhorou! 📶\nSe o problema voltar a acontecer, estou à disposição para ajudar.\nPosso te auxiliar em algo mais? 🙂' },
-                { id: 'm14', category: 'suporte', label: '🔄 Acompanhamento 2',
-                    text: 'Olá, tudo bem?\n\nEstou passando para saber se a sua conexão de internet apresentou melhora desde o último atendimento. Se ainda estiver enfrentando alguma dificuldade, estou à disposição para te ajudar! 😊\nFico no aguardo do seu retorno. Tenha um ótimo dia!' },
-                { id: 'm15', category: 'suporte', label: '🔐 Troca de senha Wi-Fi',
-                    text: 'Me informe a nova senha, por favor 🔐\nApós a troca, será necessário esquecer a rede antiga e conectar novamente em todos os dispositivos, ok? 😊' },
-                { id: 'm16', category: 'suporte', label: '🔑 Criação de senha',
-                    text: 'A nova senha precisa ter:\n• Mínimo de 8 caracteres\n• Letras maiúsculas e minúsculas\n• Números\n• 1 caractere especial (@, #, $...)\nPode me enviar que faço a alteração 😊' },
-                { id: 'm17', category: 'suporte', label: '🔄 Atualização de roteador',
-                    text: 'Verifiquei que o seu roteador precisa de uma atualização no sistema.\nVou iniciar agora 🔄\nA conexão pode cair por alguns minutos ⚠️\nEla volta automaticamente em até 3 minutos ⏳\nPor favor, não desligue o equipamento 🔌' },
-                { id: 'm18', category: 'suporte', label: '✅ Pós atualização',
-                    text: 'Atualização concluída! ✅\nA conexão vai reiniciar 🔄\nApós a conexão voltar, desligue o Wi-Fi e ligue novamente no seu celular 📶\nFeche e abra os aplicativos novamente 📱\nSe for TV, desligue e ligue 📺\nPode testar e me dar um retorno por favor? 😊' },
-                { id: 'm19', category: 'suporte', label: '📡 ONT Terapro',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🐢 RELATOU LENTIDÃO NA CONEXÃO.\n\n📡 ONT TERAPRO:\nFORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO E ATIVADO O ISOLAMENTO DE REDES, FORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DO DNS, E ATIVAÇÃO DO IPV6, FEITO TAMBÉM A ATUALIZAÇÃO DA ONT TERAPRO. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
-                { id: 'm20', category: 'suporte', label: '📡 Zyxel',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🐢 RELATOU LENTIDÃO NA CONEXÃO.\n\n📡 ZYXEL:\nFEITA A ATUALIZAÇÃO DO ROTEADOR ZYZEL, FEITA TAMBÉM A PADRONIZAÇÃO DO DNS E DO IPV6. PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO. DESATIVADO O MDL. DESATIVADO O WIFFI 6 NA REDE 2.4, DESATIVADO O DFS NA REDE 5G. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
-                { id: 'm21', category: 'suporte', label: '📡 Roteadores comuns',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🐢 RELATOU LENTIDÃO NA CONEXÃO.\n\n📡 ROTEADORES COMUNS:\nFORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO, ATIVADO O IPV6. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
-                { id: 'm22', category: 'suporte', label: '🔁 Suporte remoto indisponível',
-                    text: '🔁 SUPORTE REMOTO REALIZADO: NÃO FOI POSSÍVEL REALIZAR O SUPORTE POIS O ROTEADOR ESTÁ SEM ACESSO REMOTO ATIVADO, POR FAVOR REALIZAR VERIFICAÇÕES DA CONEXÃO DO CLIENTE E ATIVAR O ACESSO REMOTO DO ROTEADOR.' },
-                { id: 'm23', category: 'suporte', label: '📺 Acesso WebLink TV',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n📺 SOLICITOU ACESSO AO WEBLINK TV.\n📤 ACESSO ENVIADO.' },
-                { id: 'm24', category: 'suporte', label: '🔑 Troca de senha',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🔑 SOLICITOU TROCA DE SENHA.\n✅ SENHA ALTERADA.' },
-                { id: 'm25', category: 'suporte', label: '🔑 Troca senha app',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n📺 SOLICITOU TROCA DE SENHA DO APP WEBLINK.\n🔑 SENHA ALTERADA.\n🆕 NOVA SENHA:' },
-                { id: 'm26', category: 'suporte', label: '📍 Verificar viabilidade',
-                    text: '📍 VERIFICAR VIABILIDADE:\n👤 PROPRIETÁRIO:\n📞 CONTATO:\n🏡 NOME DA FAZENDA:\n📏 QUANTOS KM DA CIDADE:\n📌 REFERÊNCIA DA LOCALIZAÇÃO:\n📡 EQUIPAMENTOS:' },
+                { id: 'm8', category: 'suporte', label: 'Coleta de informações',
+                    text: 'Vou te ajudar da melhor forma possível.\nPode me passar alguns detalhes?\n\nEstá com lentidão, quedas ou oscilações?\nAcontece em qual horário? Desde quando?\nÉ em todos os dispositivos (celular, TV, computador)?\nÉ na casa toda ou em pontos específicos?\nOcorre em algum app específico?\nAssim consigo analisar e te ajudar mais rápido!' },
+                { id: 'm9', category: 'suporte', label: 'Coleta (variação)',
+                    text: 'Bom dia, tudo bem?\n\nVocê pode me informar mais alguns detalhes, por favor?\n\nEstá com lentidão, quedas ou oscilações?\nAcontece em todos os horários? Desde quando começou?\nO problema é em todos os aparelhos (celular, TV, computador) ou só em um?\nÉ na casa toda ou em um local específico?\nOcorre em algum aplicativo específico?\nCom essas informações, consigo analisar melhor e buscar uma solução mais rápida para você!' },
+                { id: 'm10', category: 'suporte', label: 'Ajuste remoto',
+                    text: 'Fiz alguns ajustes na sua conexão remotamente.\nA conexão vai reiniciar.\nApós a conexão voltar, desligue o Wi-Fi e ligue novamente no seu celular.\nFeche e abra os aplicativos novamente.\nSe for TV, desligue e ligue.\nPode testar e me dar um retorno por favor?' },
+                { id: 'm11', category: 'suporte', label: 'Liberação de conexão',
+                    text: 'Prontinho! Conexão liberada.\nPode levar até 5 minutinhos para normalizar.\nPosso te ajudar em algo mais?' },
+                { id: 'm12', category: 'suporte', label: 'Transferência',
+                    text: 'Vou transferir seu atendimento para o setor responsável.\nEles darão continuidade e vão te ajudar da melhor forma!' },
+                { id: 'm13', category: 'suporte', label: 'Acompanhamento 1',
+                    text: 'Que bom que a conexão melhorou!\nSe o problema voltar a acontecer, estou à disposição para ajudar.\nPosso te auxiliar em algo mais?' },
+                { id: 'm14', category: 'suporte', label: 'Acompanhamento 2',
+                    text: 'Olá, tudo bem?\n\nEstou passando para saber se a sua conexão de internet apresentou melhora desde o último atendimento. Se ainda estiver enfrentando alguma dificuldade, estou à disposição para te ajudar!\nFico no aguardo do seu retorno. Tenha um ótimo dia!' },
+                { id: 'm15', category: 'suporte', label: 'Troca de senha Wi-Fi',
+                    text: 'Me informe a nova senha, por favor.\nApós a troca, será necessário esquecer a rede antiga e conectar novamente em todos os dispositivos, ok?' },
+                { id: 'm16', category: 'suporte', label: 'Criação de senha',
+                    text: 'A nova senha precisa ter:\n- Mínimo de 8 caracteres\n- Letras maiúsculas e minúsculas\n- Números\n- 1 caractere especial (@, #, $...)\nPode me enviar que faço a alteração.' },
+                { id: 'm17', category: 'suporte', label: 'Atualização de roteador',
+                    text: 'Verifiquei que o seu roteador precisa de uma atualização no sistema.\nVou iniciar agora.\nA conexão pode cair por alguns minutos.\nEla volta automaticamente em até 3 minutos.\nPor favor, não desligue o equipamento.' },
+                { id: 'm18', category: 'suporte', label: 'Pós atualização',
+                    text: 'Atualização concluída!\nA conexão vai reiniciar.\nApós a conexão voltar, desligue o Wi-Fi e ligue novamente no seu celular.\nFeche e abra os aplicativos novamente.\nSe for TV, desligue e ligue.\nPode testar e me dar um retorno por favor?' },
+                { id: 'm19', category: 'suporte', label: 'ONT Terapro',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nRELATOU LENTIDÃO NA CONEXÃO.\n\nONT TERAPRO:\nFORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO E ATIVADO O ISOLAMENTO DE REDES, FORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DO DNS, E ATIVAÇÃO DO IPV6, FEITO TAMBÉM A ATUALIZAÇÃO DA ONT TERAPRO. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
+                { id: 'm20', category: 'suporte', label: 'Zyxel',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nRELATOU LENTIDÃO NA CONEXÃO.\n\nZYXEL:\nFEITA A ATUALIZAÇÃO DO ROTEADOR ZYXEL, FEITA TAMBÉM A PADRONIZAÇÃO DO DNS E DO IPV6. PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO. DESATIVADO O MDL. DESATIVADO O WI-FI 6 NA REDE 2.4, DESATIVADO O DFS NA REDE 5G. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
+                { id: 'm21', category: 'suporte', label: 'Roteadores comuns',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nRELATOU LENTIDÃO NA CONEXÃO.\n\nROTEADORES COMUNS:\nFORAM FEITOS OS PROCEDIMENTOS DE PADRONIZAÇÃO DA REDE 2.4 COM O CANAL AUTOMÁTICO E LARGURA DE CANAL EM 20MHZ, DA REDE 5G COM O CANAL E A LARGURA DE CANAL EM AUTOMÁTICO, ATIVADO O IPV6. CLIENTE SENTIU MELHORA NA CONEXÃO.' },
+                { id: 'm22', category: 'suporte', label: 'Suporte remoto indisponível',
+                    text: 'SUPORTE REMOTO REALIZADO: NÃO FOI POSSÍVEL REALIZAR O SUPORTE POIS O ROTEADOR ESTÁ SEM ACESSO REMOTO ATIVADO, POR FAVOR REALIZAR VERIFICAÇÕES DA CONEXÃO DO CLIENTE E ATIVAR O ACESSO REMOTO DO ROTEADOR.' },
+                { id: 'm23', category: 'suporte', label: 'Acesso WebLink TV',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU ACESSO AO WEBLINK TV.\nACESSO ENVIADO.' },
+                { id: 'm24', category: 'suporte', label: 'Troca de senha',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU TROCA DE SENHA.\nSENHA ALTERADA.' },
+                { id: 'm25', category: 'suporte', label: 'Troca senha app',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU TROCA DE SENHA DO APP WEBLINK.\nSENHA ALTERADA.\nNOVA SENHA:' },
+                { id: 'm26', category: 'suporte', label: 'Verificar viabilidade',
+                    text: 'VERIFICAR VIABILIDADE:\nPROPRIETÁRIO:\nCONTATO:\nNOME DA FAZENDA:\nQUANTOS KM DA CIDADE:\nREFERÊNCIA DA LOCALIZAÇÃO:\nEQUIPAMENTOS:' },
 
                 // ===== CHECKLIST (6) =====
-                { id: 'm27', category: 'checklist', label: '📋 Checklist conexão',
-                    text: '📋 CHECKLIST -- ABERTURA DE ATENDIMENTO (PROBLEMAS DE CONEXÃO)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n⚠️ PROBLEMA RELATADO:\n🌐 POSSUI CONEXÃO CABEADA:\n🔁 SUPORTE REMOTO REALIZADO:\n📡 SINAL DA FIBRA:\nTX:\nRX:' },
-                { id: 'm28', category: 'checklist', label: '📋 Sem conexão',
-                    text: '📋 CHECKLIST -- SEM CONEXÃO\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n⚠️ PROBLEMA RELATADO:\n🚨 LOS:\n\nSEM CONEXÃO, FEITOS OS PROCEDIMENTOS DE REINICIO E VERIFICAÇÃO DOS CABOS MAS SEM SUCESSO.' },
-                { id: 'm29', category: 'checklist', label: '📋 Câmera offline',
-                    text: '📋 CHECKLIST -- ABERTURA DE ATENDIMENTO (CÂMERA OFFLINE)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n📹 CÂMERA AFETADA:\n⚠️ PROBLEMA RELATADO:\n🔍 VERIFICAÇÕES FEITAS' },
-                { id: 'm30', category: 'checklist', label: '📋 Adição de câmeras',
-                    text: '📋 CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ADIÇÃO DE CÂMERAS)\n\n📹 QUANTIDADE DE CÂMERAS ADICIONADAS:\n📧 E-MAIL CADASTRADO:\n🔑 SENHA CADASTRADA:\n✅ CÂMERAS ADICIONADAS COM SUCESSO' },
-                { id: 'm31', category: 'checklist', label: '📋 Auxílio',
-                    text: '📋 CHECKLIST -- ABERTURA DE ATENDIMENTO (AUXÍLIO)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n🛠 ATENDIMENTO SOLICITADO:\n💰 TAXA:' },
-                { id: 'm32', category: 'checklist', label: '📋 Ativação streaming',
-                    text: '📋 CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ATIVAÇÃO DE STREAMING)\n\n👤 QUEM ENTROU EM CONTATO:\n📞 CONTATO:\n📺 SERVIÇO ATIVADO:\n(DEEZER / DISNEY+ / HBO MAX)\n📧 E-MAIL CADASTRADO:\n🔑 SENHA CADASTRADA:\n✅ ATIVAÇÃO CONCLUÍDA' },
+                { id: 'm27', category: 'checklist', label: 'Checklist conexão',
+                    text: 'CHECKLIST -- ABERTURA DE ATENDIMENTO (PROBLEMAS DE CONEXÃO)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nPROBLEMA RELATADO:\nPOSSUI CONEXÃO CABEADA:\nSUPORTE REMOTO REALIZADO:\nSINAL DA FIBRA:\nTX:\nRX:' },
+                { id: 'm28', category: 'checklist', label: 'Sem conexão',
+                    text: 'CHECKLIST -- SEM CONEXÃO\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nPROBLEMA RELATADO:\nLOS:\n\nSEM CONEXÃO, FEITOS OS PROCEDIMENTOS DE REINICIO E VERIFICAÇÃO DOS CABOS MAS SEM SUCESSO.' },
+                { id: 'm29', category: 'checklist', label: 'Câmera offline',
+                    text: 'CHECKLIST -- ABERTURA DE ATENDIMENTO (CÂMERA OFFLINE)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nCÂMERA AFETADA:\nPROBLEMA RELATADO:\nVERIFICAÇÕES FEITAS' },
+                { id: 'm30', category: 'checklist', label: 'Adição de câmeras',
+                    text: 'CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ADIÇÃO DE CÂMERAS)\n\nQUANTIDADE DE CÂMERAS ADICIONADAS:\nE-MAIL CADASTRADO:\nSENHA CADASTRADA:\nCÂMERAS ADICIONADAS COM SUCESSO' },
+                { id: 'm31', category: 'checklist', label: 'Auxílio',
+                    text: 'CHECKLIST -- ABERTURA DE ATENDIMENTO (AUXÍLIO)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nATENDIMENTO SOLICITADO:\nTAXA:' },
+                { id: 'm32', category: 'checklist', label: 'Ativação streaming',
+                    text: 'CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ATIVAÇÃO DE STREAMING)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nSERVIÇO ATIVADO:\n(DEEZER / DISNEY+ / HBO MAX)\nE-MAIL CADASTRADO:\nSENHA CADASTRADA:\nATIVAÇÃO CONCLUÍDA' },
 
                 // ===== FINANCEIRO (4) =====
-                { id: 'm33', category: 'financeiro', label: '🏠 Mudança de endereço',
-                    text: 'Para mudança de endereço, me informe:\n\n👤 Nome completo do titular:\n🏙️ Cidade:\n🏘️ Bairro:\n🛣️ Rua:\n🏡 Número da casa:\n\n📌 Como será feita uma nova instalação, temos uma taxa simbólica de R$100,00 a prazo.\n💸 À vista conseguimos um desconto, ficando por R$70,00.\n🎉 Boa notícia: Se a casa já teve uma instalação da WebLink e for possível reutilizar o cabo, não haverá taxa!\n\n📦 Os equipamentos (roteador e ONU) precisam estar no novo endereço na hora do atendimento.' },
-                { id: 'm34', category: 'financeiro', label: '🔓 Desbloqueio em confiança',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n🔓 SOLICITOU DESBLOQUEIO EM CONFIANÇA.\n✅ DESBLOQUEIO CONCEDIDO, CONEXÃO LIBERADA.' },
-                { id: 'm35', category: 'financeiro', label: '📄 Segunda via de boleto',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n📄 SOLICITOU SEGUNDA VIA DE BOLETO.\n📤 BOLETO ENVIADO.' },
-                { id: 'm36', category: 'financeiro', label: '💳 Liberação com comprovante',
-                    text: '📌 CLIENTE ENTROU EM CONTATO PELO NÚMERO:\n💳 SOLICITOU LIBERAÇÃO MEDIANTE COMPROVANTE DE PAGAMENTO.\n📎 COMPROVANTE ANEXADO E CONEXÃO LIBERADA.' },
+                { id: 'm33', category: 'financeiro', label: 'Mudança de endereço',
+                    text: 'Para mudança de endereço, me informe:\n\nNome completo do titular:\nCidade:\nBairro:\nRua:\nNúmero da casa:\n\nComo será feita uma nova instalação, temos uma taxa simbólica de R$100,00 a prazo.\nÀ vista conseguimos um desconto, ficando por R$70,00.\nBoa notícia: Se a casa já teve uma instalação da WebLink e for possível reutilizar o cabo, não haverá taxa!\n\nOs equipamentos (roteador e ONU) precisam estar no novo endereço na hora do atendimento.' },
+                { id: 'm34', category: 'financeiro', label: 'Desbloqueio em confiança',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU DESBLOQUEIO EM CONFIANÇA.\nDESBLOQUEIO CONCEDIDO, CONEXÃO LIBERADA.' },
+                { id: 'm35', category: 'financeiro', label: 'Segunda via de boleto',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU SEGUNDA VIA DE BOLETO.\nBOLETO ENVIADO.' },
+                { id: 'm36', category: 'financeiro', label: 'Liberação com comprovante',
+                    text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU LIBERAÇÃO MEDIANTE COMPROVANTE DE PAGAMENTO.\nCOMPROVANTE ANEXADO E CONEXÃO LIBERADA.' },
 
                 // ===== STREAMING (6) =====
-                { id: 'm37', category: 'streaming', label: '📺 WebLink TV 1',
-                    text: 'Para acessar pelo CDN TV você primeiro precisa seguir esse passo a passo:\n\n1.Escolha do Provedor 🔍:\n• Ao acessar a plataforma, será solicitado que você selecione um provedor.\n• No campo de pesquisa, digite WEBLINK.\n\n2.Selecione a Opção Correta ✅:\n• Duas opções devem aparecer, selecione a segunda opção: (WEBLINK TV) tv.weblinknet.com.br\n\n3.Login 🔐:\n• Depois disso, apenas digite os seus acessos:\n• 👤 Usuário:\n• 🔑 Senha:\n\nApós o login, você terá acesso a todo conteúdo disponível.📺🎉' },
-                { id: 'm38', category: 'streaming', label: '📺 WebLink TV 2',
-                    text: 'PARA ACESSAR A WEBLINK TV 📺\n\nBaixe o Aplicativo 📲:\nNa TV , baixe o app WEBLINK STB ou CDN TV .\nNo celular , baixe o app WEBLINK TV .\n\nDigite seu Login 👤:\nUsuário :\n🔑 Senha :\n\nAproveite! 🎉\nPronto! Agora é só assistir aos mais de 190 canais disponíveis.\nDivirta-se! 😊' },
-                { id: 'm39', category: 'streaming', label: '📺 WebLink TV 3',
-                    text: 'Aqui está o seu acesso:\n• 👤 Usuário :\n• 🔑 Senha :\n\nAproveite! 🎉\nPronto! Agora é só assistir aos mais de 190 canais disponíveis.\nDivirta-se! 😊' },
-                { id: 'm40', category: 'streaming', label: '🎬 HBO Max',
-                    text: '🎬 Acesso HBO Max liberado! 🍿✨\nProntinho! Agora é só baixar ou acessar o aplicativo HBO Max e aproveitar 😍\n📧 E-mail:\n🔐 Senha:\nQualquer dúvida é só chamar 😉\nBom proveito e bons episódios! 🧡💙🎥🍿' },
-                { id: 'm41', category: 'streaming', label: '🎬 Disney+',
-                    text: '🎬 Acesso Disney+ liberado! 🍿✨\nProntinho! Agora é só baixar ou acessar o aplicativo Disney+ e aproveitar 😍\n📧 E-mail:\n🔐 Senha:\nQualquer dúvida é só chamar 😉\nBom proveito e bons episódios! 🧡💙🎥🍿' },
-                { id: 'm42', category: 'streaming', label: '🎧 Deezer',
-                    text: 'Foi adicionada a sua licença por aqui! 🎧💙🧡\nO Deezer irá enviar um e-mail para você ativar a sua conta e realizar o seu acesso 📩\nCaso não receba em até 24 horas, pode me chamar por aqui que te ajudo 😊\n\nPara fazer o seu cadastro no Deezer, clique nesse link 👉 https://www.deezer.com/br/activate/stennabr\n\n1️⃣ Primeiro, digite o seu CPF.\n2️⃣ Depois, informe o seu número de telefone 📱.\n3️⃣ Em seguida, selecione a opção "Cadastre-se" ✍️.\n4️⃣ Insira os seus dados pessoais e faça o seu cadastro 📝.\n\nDivirta-se ouvindo suas músicas favoritas! 🎧🎶🎉' },
+                { id: 'm37', category: 'streaming', label: 'WebLink TV 1',
+                    text: 'Para acessar pelo CDN TV você primeiro precisa seguir esse passo a passo:\n\n1. Escolha do Provedor:\n- Ao acessar a plataforma, será solicitado que você selecione um provedor.\n- No campo de pesquisa, digite WEBLINK.\n\n2. Selecione a Opção Correta:\n- Duas opções devem aparecer, selecione a segunda opção: (WEBLINK TV) tv.weblinknet.com.br\n\n3. Login:\n- Depois disso, apenas digite os seus acessos:\n- Usuário:\n- Senha:\n\nApós o login, você terá acesso a todo conteúdo disponível.' },
+                { id: 'm38', category: 'streaming', label: 'WebLink TV 2',
+                    text: 'PARA ACESSAR A WEBLINK TV\n\nBaixe o Aplicativo:\nNa TV, baixe o app WEBLINK STB ou CDN TV.\nNo celular, baixe o app WEBLINK TV.\n\nDigite seu Login:\nUsuário:\nSenha:\n\nAproveite!\nPronto! Agora é só assistir aos mais de 190 canais disponíveis.\nDivirta-se!' },
+                { id: 'm39', category: 'streaming', label: 'WebLink TV 3',
+                    text: 'Aqui está o seu acesso:\n- Usuário:\n- Senha:\n\nAproveite!\nPronto! Agora é só assistir aos mais de 190 canais disponíveis.\nDivirta-se!' },
+                { id: 'm40', category: 'streaming', label: 'HBO Max',
+                    text: 'Acesso HBO Max liberado!\nProntinho! Agora é só baixar ou acessar o aplicativo HBO Max e aproveitar.\nE-mail:\nSenha:\nQualquer dúvida é só chamar.\nBom proveito e bons episódios!' },
+                { id: 'm41', category: 'streaming', label: 'Disney+',
+                    text: 'Acesso Disney+ liberado!\nProntinho! Agora é só baixar ou acessar o aplicativo Disney+ e aproveitar.\nE-mail:\nSenha:\nQualquer dúvida é só chamar.\nBom proveito e bons episódios!' },
+                { id: 'm42', category: 'streaming', label: 'Deezer',
+                    text: 'Foi adicionada a sua licença por aqui!\nO Deezer irá enviar um e-mail para você ativar a sua conta e realizar o seu acesso.\nCaso não receba em até 24 horas, pode me chamar por aqui que te ajudo.\n\nPara fazer o seu cadastro no Deezer, clique nesse link: https://www.deezer.com/br/activate/stennabr\n\n1. Primeiro, digite o seu CPF.\n2. Depois, informe o seu número de telefone.\n3. Em seguida, selecione a opção "Cadastre-se".\n4. Insira os seus dados pessoais e faça o seu cadastro.\n\nDivirta-se ouvindo suas músicas favoritas!' },
 
                 // ===== PAUSA (2) =====
-                { id: 'm43', category: 'pausa', label: '🍽️ Intervalo 2h',
+                { id: 'm43', category: 'pausa', label: 'Intervalo 2h',
                     text: 'Estou saindo para o meu intervalo de 2 horas, porém deixarei seu atendimento em aberto para continuarmos quando eu retornar.\n\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.' },
-                { id: 'm44', category: 'pausa', label: '🌙 Encerrando expediente',
-                    text: 'Meu expediente se encerra agora, deixarei seu atendimento em aberto para continuarmos amanhã às 08:00.\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.\nTenha uma ótima noite! 🌙' },
+                { id: 'm44', category: 'pausa', label: 'Encerrando expediente',
+                    text: 'Meu expediente se encerra agora, deixarei seu atendimento em aberto para continuarmos amanhã às 08:00.\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.\nTenha uma ótima noite!' },
 
                 // ===== EVENTOS (2) =====
-                { id: 'm45', category: 'eventos', label: '🛠️ Solicitação evento',
-                    text: '🛠️ INSTALAR EQUIPAMENTOS DE EVENTO PARA COBERTURA DE INTERNET\n\n🎶 DESCRIÇÃO DO EVENTO:\n📍 LOCAL DO EVENTO:\n📅 DATA DO EVENTO:\n👤 RESPONSÁVEL:\n👥 QUANTIDADE DE PESSOAS PREVISTA:\n🌐 INTERNET SERÁ UTILIZADA PARA: (PAGAMENTOS PIX, ACESSO AO PÚBLICO, TRANSMISSÕES AO VIVO)\n🎪 NECESSÁRIO ESPAÇO PARA BALÃO OU TENDA:' },
-                { id: 'm46', category: 'eventos', label: '📦 Retirada equipamentos',
-                    text: '📦 RETIRADA DE EQUIPAMENTOS PARA EVENTO\n\n📍 LOCAL:\n👤 RESPONSÁVEL:\n🛠️ EQUIPAMENTOS:' }
+                { id: 'm45', category: 'eventos', label: 'Solicitação evento',
+                    text: 'INSTALAR EQUIPAMENTOS DE EVENTO PARA COBERTURA DE INTERNET\n\nDESCRIÇÃO DO EVENTO:\nLOCAL DO EVENTO:\nDATA DO EVENTO:\nRESPONSÁVEL:\nQUANTIDADE DE PESSOAS PREVISTA:\nINTERNET SERÁ UTILIZADA PARA: (PAGAMENTOS PIX, ACESSO AO PÚBLICO, TRANSMISSÕES AO VIVO)\nNECESSÁRIO ESPAÇO PARA BALÃO OU TENDA:' },
+                { id: 'm46', category: 'eventos', label: 'Retirada equipamentos',
+                    text: 'RETIRADA DE EQUIPAMENTOS PARA EVENTO\n\nLOCAL:\nRESPONSÁVEL:\nEQUIPAMENTOS:' }
             ];
 
             const DEFAULT_CATEGORIES = [
-                { id: 'abertura', name: '🟢 Abertura', shortcut: '1' },
-                { id: 'encerramento', name: '🔴 Encerramento', shortcut: '2' },
-                { id: 'suporte', name: '🛠️ Suporte', shortcut: '3' },
-                { id: 'checklist', name: '📋 Checklist', shortcut: '4' },
-                { id: 'financeiro', name: '💰 Financeiro', shortcut: '5' },
-                { id: 'streaming', name: '🎬 Streamings', shortcut: '6' },
-                { id: 'pausa', name: '⏳ Pausa', shortcut: '7' },
-                { id: 'eventos', name: '🎪 Eventos', shortcut: '8' }
+                { id: 'abertura', name: 'Abertura', shortcut: '1' },
+                { id: 'encerramento', name: 'Encerramento', shortcut: '2' },
+                { id: 'suporte', name: 'Suporte', shortcut: '3' },
+                { id: 'checklist', name: 'Checklist', shortcut: '4' },
+                { id: 'financeiro', name: 'Financeiro', shortcut: '5' },
+                { id: 'streaming', name: 'Streamings', shortcut: '6' },
+                { id: 'pausa', name: 'Pausa', shortcut: '7' },
+                { id: 'eventos', name: 'Eventos', shortcut: '8' }
             ];
 
             // =============================================================
@@ -1529,14 +1557,14 @@
                 renderMessages();
                 renderTabs();
                 updateStats();
-                toast('🗑️ Mensagem excluída!', 'success');
+                toast('Mensagem excluída!', 'success');
             };
 
             window.editMessage = function(id) {
                 const msg = messages.find(m => m.id === id);
                 if (!msg) return;
                 editingId = id;
-                document.getElementById('modalTitle').textContent = '✏️ Editar Mensagem';
+                document.getElementById('modalTitle').textContent = 'Editar Mensagem';
                 document.getElementById('formCategory').value = msg.category;
                 document.getElementById('formLabel').value = msg.label;
                 document.getElementById('formMessage').value = msg.text;
@@ -1550,7 +1578,7 @@
 
             document.getElementById('btnAddMsg').addEventListener('click', function() {
                 editingId = null;
-                document.getElementById('modalTitle').textContent = '📝 Nova Mensagem';
+                document.getElementById('modalTitle').textContent = 'Nova Mensagem';
                 document.getElementById('formCategory').value = currentTab;
                 document.getElementById('formLabel').value = '';
                 document.getElementById('formMessage').value = '';
@@ -1577,7 +1605,7 @@
                 const text = document.getElementById('formMessage').value.trim();
 
                 if (!category || !label || !text) {
-                    toast('⚠️ Preencha todos os campos!', 'warning');
+                    toast('Preencha todos os campos!', 'warning');
                     return;
                 }
 
@@ -1586,7 +1614,7 @@
                     if (idx > -1) {
                         messages[idx] = { ...messages[idx], category, label, text };
                         saveMessages();
-                        toast('✅ Mensagem atualizada!', 'success');
+                        toast('Mensagem atualizada!', 'success');
                     }
                 } else {
                     const newMsg = {
@@ -1597,7 +1625,7 @@
                     };
                     messages.push(newMsg);
                     saveMessages();
-                    toast('✅ Mensagem adicionada!', 'success');
+                    toast('Mensagem adicionada!', 'success');
                 }
 
                 document.getElementById('modalOverlay').classList.remove('open');
@@ -1717,17 +1745,19 @@
                 updateStats();
                 populateCategorySelect();
                 const nome = getAtendenteNome();
-                console.log(`✅ Site WebLink+ Atendimento carregado com sucesso!`);
-                console.log(`👤 Atendente: ${nome}`);
-                console.log(`📊 ${messages.length} mensagens carregadas`);
-                toast(`💡 Bem-vindo(a), ${nome}! Use Ctrl+1 a Ctrl+8 para navegar`, 'info');
+                console.log(`Site WebLink+ Atendimento carregado com sucesso!`);
+                console.log(`Atendente: ${nome}`);
+                console.log(`${messages.length} mensagens carregadas`);
+                toast(`Bem-vindo(a), ${nome}! Use Ctrl+1 a Ctrl+8 para navegar`, 'info');
             }
 
             if (sessionStorage.getItem('loggedIn') === 'true') {
                 const savedUser = sessionStorage.getItem('currentUser');
+                const savedAtendente = sessionStorage.getItem('currentAtendente');
                 if (savedUser && USERS[savedUser]) {
                     currentUser = savedUser;
-                    document.getElementById('atendenteNome').textContent = USERS[savedUser].nome;
+                    currentAtendente = savedAtendente || USERS[savedUser].nome;
+                    document.getElementById('atendenteNome').textContent = currentAtendente;
                 }
                 initSite();
             }
