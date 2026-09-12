@@ -4,987 +4,438 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebLink+ Fibra - Painel de Atendimento</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
         :root {
             --primary: #f58a1f;
             --primary-dark: #d9770a;
-            --primary-glow: rgba(245, 138, 31, 0.15);
-            --bg: #f4f6fa;
+            --primary-glow: rgba(245, 138, 31, 0.16);
+            --navy-950: #050d1c;
+            --navy-900: #0a1830;
+            --navy-800: #112440;
+            --navy-700: #1a3560;
+            --blue-accent: #2f6fed;
+            --bg: #eef1f8;
             --card: #ffffff;
             --text: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --border: #e8edf4;
-            --shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
-            --shadow-hover: 0 8px 40px rgba(0, 0, 0, 0.08);
-            --radius: 16px;
-            --radius-sm: 10px;
+            --text-secondary: #4b5875;
+            --text-muted: #94a0b8;
+            --border: #e3e8f2;
+            --shadow: 0 2px 20px rgba(15, 23, 42, 0.05);
+            --shadow-hover: 0 14px 44px rgba(15, 23, 42, 0.10);
+            --radius: 18px;
+            --radius-sm: 12px;
             --radius-full: 9999px;
-            --font: 'Inter', system-ui, sans-serif;
-            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
             --success: #22c55e;
             --danger: #ef4444;
             --warning: #f59e0b;
             --info: #3b82f6;
         }
-
+ 
         .dark {
-            --bg: #0c1628;
-            --card: #1a2942;
-            --text: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: #1e3555;
-            --shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 8px 40px rgba(0, 0, 0, 0.4);
+            --bg: #060d1c;
+            --card: #0e1a30;
+            --text: #eef2fb;
+            --text-secondary: #93a1bd;
+            --text-muted: #5c6a89;
+            --border: #182948;
+            --shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
+            --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.5);
         }
-
+ 
         body {
-            font-family: var(--font);
-            background: var(--bg);
+            font-family: var(--font-body);
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 1px 1px, rgba(47, 111, 237, 0.12) 1px, transparent 0);
+            background-size: 26px 26px;
             color: var(--text);
             min-height: 100vh;
-            transition: background var(--transition), color var(--transition);
+            transition: background-color var(--transition), color var(--transition);
             -webkit-font-smoothing: antialiased;
         }
-
+ 
+        h1, h2, h3, .brand, .section-title, .logo .tag { font-family: var(--font-display); }
+ 
+        /* ===== ÍCONES (SVG embutido, sem dependência externa) ===== */
+        [data-icon] { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
+        [data-icon] svg.icon { width: 1em; height: 1em; flex-shrink: 0; }
+ 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: var(--radius-full); }
-
+ 
+        /* ===== TOASTS ===== */
         .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-width: 400px;
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 8px; max-width: 380px;
         }
         .toast {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 12px 20px;
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-hover);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            animation: slideIn 0.3s ease;
-            transition: all 0.3s ease;
+            background: var(--card); border: 1px solid var(--border);
+            padding: 12px 18px; border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-hover); display: flex; align-items: center;
+            gap: 10px; font-size: 0.85rem; font-weight: 500;
+            animation: slideIn 0.3s ease; transition: all 0.3s ease;
         }
         .toast.success { border-left: 4px solid var(--success); }
         .toast.warning { border-left: 4px solid var(--warning); }
         .toast.error { border-left: 4px solid var(--danger); }
         .toast.info { border-left: 4px solid var(--info); }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
+        @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+ 
+        /* ===== LOGIN ===== */
         .login-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; inset: 0; z-index: 999;
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 20% 20%, #102544 0%, var(--navy-950) 55%);
+            overflow: hidden;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-        .login-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
+        .login-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+ 
+        .net-bg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.5; }
+        .net-bg .edge { stroke: #2f6fed; stroke-width: 1; opacity: 0.25; stroke-dasharray: 6 8; animation: flow 12s linear infinite; }
+        .net-bg .node { fill: var(--primary); animation: pulse 3.2s ease-in-out infinite; }
+        .net-bg .node.b { fill: #2f6fed; animation-delay: 0.8s; }
+        .net-bg .node.c { animation-delay: 1.6s; }
+        .net-bg .node.d { fill: #2f6fed; animation-delay: 2.4s; }
+        @keyframes flow { to { stroke-dashoffset: -140; } }
+        @keyframes pulse { 0%, 100% { opacity: 0.35; r: 3; } 50% { opacity: 1; r: 5; } }
+ 
         .login-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 2.5rem 2rem;
-            max-width: 420px;
-            width: 95%;
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            position: relative; z-index: 2;
+            background: var(--card); border-radius: 22px;
+            padding: 2.4rem 2.2rem; max-width: 400px; width: 92%;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.45);
             text-align: center;
         }
-
-        .login-card .logo {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--primary);
-        }
-        .login-card .logo i {
-            font-size: 1.8rem;
-            margin-right: 0.3rem;
-        }
+        .login-card .logo-img { width: 132px; margin: 0 auto 0.6rem; display: block; }
         .login-card .sub {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.2rem;
-            margin-bottom: 1.8rem;
+            color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;
+            margin-top: 0.1rem; margin-bottom: 1.8rem; letter-spacing: 0.2px;
         }
-
-        .login-card .field {
-            text-align: left;
-            margin-bottom: 1rem;
-        }
+        .login-card .field { text-align: left; margin-bottom: 1rem; }
         .login-card .field label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
+            display: block; font-size: 0.72rem; font-weight: 600;
+            color: var(--text-secondary); margin-bottom: 0.3rem;
         }
         .login-card .field .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: var(--bg);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            transition: all var(--transition);
+            position: relative; display: flex; align-items: center;
+            background: var(--bg); border-radius: var(--radius-sm);
+            border: 1px solid var(--border); transition: all var(--transition);
         }
         .login-card .field .input-wrapper:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
+            border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow);
         }
-        .login-card .field .input-wrapper i {
-            position: absolute;
-            left: 0.8rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
+        .login-card .field .input-wrapper i { position: absolute; left: 0.9rem; color: var(--text-muted); font-size: 0.9rem; }
         .login-card .field .input-wrapper input {
-            width: 100%;
-            padding: 0.7rem 0.8rem 0.7rem 2.5rem;
-            border: none;
-            background: transparent;
-            color: var(--text);
-            font-family: var(--font);
-            font-size: 0.9rem;
-            outline: none;
+            width: 100%; padding: 0.75rem 0.9rem 0.75rem 2.6rem; border: none;
+            background: transparent; color: var(--text); font-family: var(--font-body);
+            font-size: 0.9rem; outline: none;
         }
-        .login-card .field .input-wrapper input::placeholder {
-            color: var(--text-muted);
-        }
-
+        .login-card .field .input-wrapper input::placeholder { color: var(--text-muted); }
+ 
         .login-card .btn-login {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: var(--radius-full);
-            border: none;
-            background: var(--primary);
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font);
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            width: 100%; padding: 0.85rem; border-radius: var(--radius-full); border: none;
+            background: var(--primary); color: #fff; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: all var(--transition); font-family: var(--font-body);
+            margin-top: 0.6rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
-        .login-card .btn-login:hover {
-            background: var(--primary-dark);
-            transform: scale(1.02);
-        }
-
-        .login-card .error-msg {
-            color: var(--danger);
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
-        .login-card .error-msg.show {
-            display: block;
-        }
-
-        .login-card .footer-login {
-            margin-top: 1.2rem;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-        }
-        .login-card .footer-login strong {
-            color: var(--primary);
-        }
-
+        .login-card .btn-login:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 8px 20px var(--primary-glow); }
+ 
+        .login-card .error-msg { color: var(--danger); font-size: 0.8rem; margin-top: 0.7rem; display: none; font-weight: 500; }
+        .login-card .error-msg.show { display: block; }
+ 
+        .login-card .footer-login { margin-top: 1.4rem; font-size: 0.65rem; color: var(--text-muted); }
+        .login-card .footer-login strong { color: var(--primary); }
+ 
+        /* ===== HEADER ===== */
         .header {
-            background: #0b1a33;
-            padding: 0.6rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            border-bottom: 3px solid var(--primary);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(120deg, var(--navy-950), var(--navy-900) 60%, var(--navy-800));
+            padding: 0.6rem 1.8rem; display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 0.6rem; border-bottom: 3px solid var(--primary);
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 26px rgba(0, 0, 0, 0.2);
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-        }
-
-        .logo .brand {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--primary);
-        }
-        .logo .brand i {
-            font-size: 1.2rem;
-            margin-right: 0.3rem;
-        }
-        .logo .tag {
-            font-size: 0.5rem;
-            color: #8aadc7;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 500;
-            margin-top: -2px;
-            display: block;
-        }
-
-        .logo-divider {
-            width: 2px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-        }
-
-        .header-title {
-            color: #b0c9dd;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        .header-title span {
-            color: var(--primary);
-            font-weight: 700;
-        }
-        .header-title .atendente {
-            color: #8aadc7;
-            font-weight: 400;
-        }
-        .header-title .atendente strong {
-            color: #fff;
-            font-weight: 700;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-        }
-
+        .header-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .logo { display: flex; align-items: center; gap: 0.6rem; }
+        .logo .logo-img-small { height: 34px; width: auto; display: block; }
+        .logo .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+        .logo .brand { font-size: 1.05rem; font-weight: 800; color: #fff; }
+        .logo .brand span { color: var(--primary); }
+        .logo .tag { font-size: 0.55rem; color: #7f9fc4; letter-spacing: 2px; font-weight: 600; }
+ 
+        .logo-divider { width: 2px; height: 30px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
+ 
+        .header-title { color: #a9c0da; font-size: 0.82rem; font-weight: 500; }
+        .header-title span { color: var(--primary); font-weight: 700; }
+        .header-title .atendente { color: #7f9fc4; font-weight: 400; }
+        .header-title .atendente strong { color: #fff; font-weight: 700; }
+ 
+        .header-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+ 
         .clock {
-            color: #8aadc7;
-            font-size: 0.75rem;
-            font-weight: 500;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 0.25rem 0.8rem;
-            border-radius: var(--radius-full);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #a9c0da; font-size: 0.75rem; font-weight: 600;
+            background: rgba(255, 255, 255, 0.06); padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-full); border: 1px solid rgba(255, 255, 255, 0.06);
+            font-variant-numeric: tabular-nums;
         }
-
+ 
         .btn-icon {
-            background: rgba(255, 255, 255, 0.06);
-            border: none;
-            color: #8aadc7;
-            padding: 0.3rem 0.8rem;
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all var(--transition);
-            font-family: var(--font);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.06); border: none; color: #a9c0da;
+            width: 34px; height: 34px; border-radius: var(--radius-full); cursor: pointer;
+            font-size: 0.85rem; transition: all var(--transition); font-family: var(--font-body);
+            display: flex; align-items: center; justify-content: center; position: relative;
         }
-        .btn-icon:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #fff;
-        }
-        .btn-icon.danger:hover {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
+        .btn-icon:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+        .btn-icon.danger:hover { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
         .btn-icon .badge {
-            background: var(--primary);
-            color: #0b1a33;
-            font-size: 0.55rem;
-            font-weight: 700;
-            padding: 0.05rem 0.5rem;
-            border-radius: var(--radius-full);
+            position: absolute; top: -4px; right: -4px;
+            background: var(--primary); color: var(--navy-950); font-size: 0.55rem; font-weight: 800;
+            min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+            border-radius: var(--radius-full); border: 2px solid var(--navy-900);
         }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-
+ 
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+ 
         .stats-bar {
-            display: flex;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-            padding: 0.6rem 1.5rem;
-            background: var(--card);
-            border-radius: var(--radius-full);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: all var(--transition);
+            display: flex; gap: 1.4rem; flex-wrap: wrap; margin-bottom: 1.2rem;
+            padding: 0.7rem 1.5rem; background: var(--card); border-radius: var(--radius-full);
+            box-shadow: var(--shadow); border: 1px solid var(--border); transition: all var(--transition);
         }
-        .stats-bar .stat {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-        .stats-bar .stat i {
-            color: var(--primary);
-            font-size: 0.85rem;
-        }
+        .stats-bar .stat { display: flex; align-items: center; gap: 0.55rem; font-size: 0.83rem; font-weight: 500; color: var(--text-secondary); }
+        .stats-bar .stat i { color: var(--primary); font-size: 0.85rem; }
         .stats-bar .stat .num {
-            background: var(--primary-glow);
-            color: var(--primary);
-            font-weight: 700;
-            padding: 0.05rem 0.6rem;
-            border-radius: var(--radius-full);
-            font-size: 0.7rem;
+            background: var(--primary-glow); color: var(--primary); font-weight: 700;
+            padding: 0.08rem 0.65rem; border-radius: var(--radius-full); font-size: 0.72rem;
         }
-
+ 
         .progress-wrapper {
-            margin-bottom: 1.5rem;
-            background: var(--card);
-            border-radius: var(--radius-full);
-            padding: 0.5rem 1.5rem;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
+            margin-bottom: 1.2rem; background: var(--card); border-radius: var(--radius-full);
+            padding: 0.55rem 1.5rem; border: 1px solid var(--border); box-shadow: var(--shadow);
             transition: all var(--transition);
         }
-        .progress-wrapper .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.2rem;
-        }
-        .progress-wrapper .progress-track {
-            width: 100%;
-            height: 6px;
-            background: var(--border);
-            border-radius: var(--radius-full);
-            overflow: hidden;
-        }
-        .progress-wrapper .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: var(--radius-full);
-            transition: width 0.6s ease;
-            width: 0%;
-        }
-
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-bottom: 1.2rem;
-            align-items: center;
-        }
-
-        .filter-bar {
-            display: flex;
-            gap: 0.4rem;
-            flex-wrap: wrap;
-        }
+        .progress-wrapper .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem; font-weight: 500; }
+        .progress-wrapper .progress-track { width: 100%; height: 6px; background: var(--border); border-radius: var(--radius-full); overflow: hidden; }
+        .progress-wrapper .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); border-radius: var(--radius-full); transition: width 0.6s ease; width: 0%; }
+ 
+        .toolbar { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1.2rem; align-items: center; }
+ 
+        .filter-bar { display: flex; gap: 0.4rem; flex-wrap: wrap; }
         .filter-btn {
-            padding: 0.3rem 1rem;
-            border-radius: var(--radius-full);
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font);
+            padding: 0.4rem 1.1rem; border-radius: var(--radius-full); border: 1px solid var(--border);
+            background: var(--card); color: var(--text-secondary); font-size: 0.78rem; font-weight: 600;
+            cursor: pointer; transition: all var(--transition); font-family: var(--font-body);
+            display: flex; align-items: center; gap: 0.4rem;
         }
-        .filter-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-        .filter-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: #fff;
-        }
-
+        .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+ 
         .search-box {
-            flex: 1;
-            min-width: 180px;
-            background: var(--card);
-            border-radius: var(--radius-full);
-            padding: 0.3rem 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: all var(--transition);
+            flex: 1; min-width: 200px; background: var(--card); border-radius: var(--radius-full);
+            padding: 0.4rem 1.2rem; display: flex; align-items: center; gap: 0.6rem;
+            border: 1px solid var(--border); box-shadow: var(--shadow); transition: all var(--transition);
         }
-        .search-box:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
+        .search-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+        .search-box i { color: var(--text-muted); font-size: 0.85rem; }
+        .search-box input { border: none; outline: none; flex: 1; background: transparent; color: var(--text); font-family: var(--font-body); font-size: 0.85rem; padding: 0.3rem 0; }
+        .search-box input::placeholder { color: var(--text-muted); }
+        .search-box .kbd-hint {
+            font-size: 0.65rem; font-weight: 700; color: var(--text-muted); background: var(--bg);
+            border: 1px solid var(--border); border-radius: 5px; padding: 0.05rem 0.4rem;
         }
-        .search-box i {
-            color: var(--text-muted);
-            font-size: 0.85rem;
+        .search-box .result-count { background: var(--primary); color: #fff; font-size: 0.6rem; font-weight: 700; padding: 0.08rem 0.6rem; border-radius: var(--radius-full); }
+ 
+        .btn-add, .btn-ghost {
+            padding: 0.4rem 1.2rem; border-radius: var(--radius-full); border: none;
+            font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: all var(--transition);
+            font-family: var(--font-body); display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;
         }
-        .search-box input {
-            border: none;
-            outline: none;
-            flex: 1;
-            background: transparent;
-            color: var(--text);
-            font-family: var(--font);
-            font-size: 0.85rem;
-            padding: 0.3rem 0;
-        }
-        .search-box input::placeholder {
-            color: var(--text-muted);
-        }
-        .search-box .result-count {
-            background: var(--primary);
-            color: #fff;
-            font-size: 0.55rem;
-            font-weight: 700;
-            padding: 0.05rem 0.6rem;
-            border-radius: var(--radius-full);
-        }
-
-        .btn-add {
-            padding: 0.3rem 1.2rem;
-            border-radius: var(--radius-full);
-            border: none;
-            background: var(--primary);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            white-space: nowrap;
-        }
-        .btn-add:hover {
-            background: var(--primary-dark);
-            transform: scale(1.02);
-        }
-
+        .btn-add { background: var(--primary); color: #fff; }
+        .btn-add:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-ghost { background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+ 
         .tabs-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-            background: var(--card);
-            padding: 0.4rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: all var(--transition);
+            display: flex; flex-wrap: wrap; gap: 0.3rem; background: var(--card); padding: 0.4rem;
+            border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1.4rem;
+            box-shadow: var(--shadow); transition: all var(--transition);
         }
-
         .tab-btn {
-            padding: 0.4rem 1.2rem;
-            border-radius: var(--radius-sm);
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font);
-            white-space: nowrap;
+            padding: 0.5rem 1.1rem; border-radius: var(--radius-sm); border: none; background: transparent;
+            color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; cursor: pointer;
+            transition: all var(--transition); font-family: var(--font-body); white-space: nowrap;
+            display: flex; align-items: center; gap: 0.45rem;
         }
-        .tab-btn:hover {
-            color: var(--text);
-            background: var(--border);
-        }
-        .tab-btn.active {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 4px 16px var(--primary-glow);
-        }
-        .tab-btn .shortcut {
-            opacity: 0.4;
-            font-size: 0.55rem;
-            margin-left: 0.15rem;
-        }
-        .tab-btn .count {
-            font-size: 0.55rem;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 0.05rem 0.4rem;
-            border-radius: var(--radius-full);
-            margin-left: 0.2rem;
-        }
-        .tab-btn.active .count {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeUp 0.3s ease;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .tab-btn i { font-size: 0.78rem; opacity: 0.75; }
+        .tab-btn:hover { color: var(--text); background: var(--bg); }
+        .tab-btn.active { background: var(--tab-color, var(--primary)); color: #fff; box-shadow: 0 6px 18px color-mix(in srgb, var(--tab-color, var(--primary)) 35%, transparent); }
+        .tab-btn.active i { opacity: 1; }
+        .tab-btn .count { font-size: 0.6rem; background: rgba(0,0,0,0.08); padding: 0.05rem 0.42rem; border-radius: var(--radius-full); }
+        .tab-btn.active .count { background: rgba(255, 255, 255, 0.25); }
+ 
+        .tab-content { display: none; animation: fadeUp 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+ 
         .section-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
-            margin: 1.5rem 0 0.8rem;
-            padding-bottom: 0.4rem;
-            border-bottom: 3px solid var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 1.02rem; font-weight: 800; color: var(--text); margin: 0 0 0.9rem;
+            padding-bottom: 0.5rem; border-bottom: 3px solid var(--section-color, var(--primary));
+            display: flex; align-items: center; gap: 0.55rem;
         }
-        .section-title i {
-            color: var(--primary);
-            font-size: 0.9rem;
-        }
-
+        .section-title i { color: var(--section-color, var(--primary)); font-size: 0.92rem; }
+ 
         .msg-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 0.9rem 1.2rem;
-            margin-bottom: 0.7rem;
-            border-left: 4px solid var(--primary);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 1rem;
-            border: 1px solid var(--border);
-            border-left-width: 4px;
-            transition: all var(--transition);
-            box-shadow: var(--shadow);
+            background: var(--card); border-radius: var(--radius); padding: 0.95rem 1.2rem;
+            margin-bottom: 0.7rem; border-left: 4px solid var(--cat-color, var(--primary));
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+            border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            transition: all var(--transition); box-shadow: var(--shadow);
         }
-        .msg-card:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-2px);
-        }
-
-        .msg-content {
-            flex: 1;
-            font-size: 0.85rem;
-            line-height: 1.7;
-            color: var(--text);
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
+        .msg-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+ 
+        .msg-content { flex: 1; font-size: 0.85rem; line-height: 1.7; color: var(--text); white-space: pre-wrap; word-break: break-word; }
         .msg-content .label {
-            display: inline-block;
-            background: var(--primary-glow);
-            color: var(--primary);
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 0.05rem 0.6rem;
-            border-radius: var(--radius-full);
-            margin-bottom: 0.2rem;
-            border: 1px solid rgba(245, 138, 31, 0.1);
+            display: inline-block; background: color-mix(in srgb, var(--cat-color, var(--primary)) 14%, transparent);
+            color: var(--cat-color, var(--primary)); font-size: 0.62rem; font-weight: 800;
+            padding: 0.08rem 0.65rem; border-radius: var(--radius-full); margin-bottom: 0.3rem;
+            border: 1px solid color-mix(in srgb, var(--cat-color, var(--primary)) 30%, transparent);
         }
-
-        .msg-actions {
-            display: flex;
-            gap: 0.3rem;
-            flex-shrink: 0;
-            align-items: center;
-            flex-wrap: wrap;
+ 
+        .msg-actions { display: flex; gap: 0.3rem; flex-shrink: 0; align-items: center; flex-wrap: wrap; }
+        .msg-actions button {
+            background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+            font-size: 0.85rem; padding: 0.25rem 0.4rem; border-radius: var(--radius-sm); transition: all var(--transition);
         }
-
-        .msg-actions .fav-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 0.2rem 0.3rem;
-            border-radius: var(--radius-sm);
-            transition: all var(--transition);
-        }
-        .msg-actions .fav-btn:hover {
-            color: var(--warning);
-        }
-        .msg-actions .fav-btn.active {
-            color: var(--warning);
-        }
-
-        .msg-actions .edit-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0.2rem 0.3rem;
-            border-radius: var(--radius-sm);
-            transition: all var(--transition);
-        }
-        .msg-actions .edit-btn:hover {
-            color: var(--info);
-        }
-
-        .msg-actions .delete-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0.2rem 0.3rem;
-            border-radius: var(--radius-sm);
-            transition: all var(--transition);
-        }
-        .msg-actions .delete-btn:hover {
-            color: var(--danger);
-        }
-
+        .msg-actions .fav-btn:hover, .msg-actions .fav-btn.active { color: var(--warning); }
+        .msg-actions .edit-btn:hover { color: var(--info); }
+        .msg-actions .delete-btn:hover { color: var(--danger); }
+ 
         .copy-btn {
-            background: #0b1a33;
-            color: #fff;
-            border: none;
-            padding: 0.25rem 0.9rem;
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            transition: all var(--transition);
-            font-family: var(--font);
-            white-space: nowrap;
+            background: var(--navy-900); color: #fff; border: none; padding: 0.3rem 0.95rem;
+            border-radius: var(--radius-full); cursor: pointer; font-size: 0.72rem; font-weight: 700;
+            display: flex; align-items: center; gap: 0.35rem; transition: all var(--transition);
+            font-family: var(--font-body); white-space: nowrap;
         }
-        .copy-btn:hover {
-            background: var(--primary);
-            transform: scale(1.03);
-        }
-        .copy-btn.copied {
-            background: var(--success);
-        }
-
+        .copy-btn:hover { background: var(--cat-color, var(--primary)); transform: translateY(-1px); }
+        .copy-btn.copied { background: var(--success) !important; }
+ 
+        /* ===== MODAL ===== */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 200;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            animation: fadeUp 0.25s ease;
+            position: fixed; inset: 0; background: rgba(5, 13, 28, 0.55); backdrop-filter: blur(4px);
+            z-index: 200; display: none; align-items: center; justify-content: center; animation: fadeUp 0.2s ease;
         }
-        .modal-overlay.open {
-            display: flex;
-        }
-
+        .modal-overlay.open { display: flex; }
         .modal {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            max-width: 500px;
-            width: 95%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-hover);
+            background: var(--card); border-radius: var(--radius); padding: 1.5rem; max-width: 500px;
+            width: 95%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: var(--shadow-hover);
         }
-        .modal .modal-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--border);
+        .modal .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 2px solid var(--border); }
+        .modal .modal-head h2 { font-size: 1.02rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+        .modal .modal-head h2 i { color: var(--primary); }
+        .modal .modal-head .close { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-secondary); padding: 0.2rem; }
+        .modal .modal-head .close:hover { color: var(--danger); }
+ 
+        .modal .field { margin-bottom: 0.8rem; }
+        .modal .field label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.25rem; }
+        .modal .field select, .modal .field input, .modal .field textarea {
+            width: 100%; padding: 0.55rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border);
+            background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 0.82rem;
+            transition: border var(--transition), box-shadow var(--transition); outline: none;
         }
-        .modal .modal-head h2 {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-        .modal .modal-head .close {
-            background: transparent;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            padding: 0.2rem;
-        }
-        .modal .modal-head .close:hover {
-            color: var(--danger);
-        }
-
-        .modal .field {
-            margin-bottom: 0.8rem;
-        }
-        .modal .field label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.2rem;
-        }
-        .modal .field select,
-        .modal .field input,
-        .modal .field textarea {
-            width: 100%;
-            padding: 0.5rem 0.7rem;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font);
-            font-size: 0.8rem;
-            transition: border var(--transition), box-shadow var(--transition);
-            outline: none;
-        }
-        .modal .field select:focus,
-        .modal .field input:focus,
-        .modal .field textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
-        }
-        .modal .field textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        .modal .modal-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-            margin-top: 1rem;
-        }
-        .modal .modal-actions button {
-            padding: 0.4rem 1.2rem;
-            border-radius: var(--radius-full);
-            border: none;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font);
-        }
-        .modal .modal-actions .save {
-            background: var(--primary);
-            color: #fff;
-        }
-        .modal .modal-actions .save:hover {
-            background: var(--primary-dark);
-        }
-        .modal .modal-actions .cancel {
-            background: var(--border);
-            color: var(--text-secondary);
-        }
-        .modal .modal-actions .cancel:hover {
-            background: var(--text-muted);
-            color: #fff;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-secondary);
-        }
-        .empty-state i {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 0.5rem;
-            opacity: 0.3;
-        }
-        .empty-state p {
-            font-size: 0.9rem;
-        }
-        .empty-state .sub {
-            font-size: 0.75rem;
-            opacity: 0.6;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            border-top: 1px solid var(--border);
-            margin-top: 2rem;
-        }
-        .footer span {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .user-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            background: var(--card);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-        .user-table th {
-            background: var(--primary);
-            color: #fff;
-            padding: 0.7rem 1rem;
-            text-align: left;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .user-table td {
-            padding: 0.7rem 1rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.8rem;
-            color: var(--text);
-        }
-        .user-table tr:last-child td {
-            border-bottom: none;
-        }
-        .user-table tr:hover {
-            background: var(--primary-glow);
-        }
-        .user-table .badge-role {
-            display: inline-block;
-            padding: 0.15rem 0.6rem;
-            border-radius: var(--radius-full);
-            font-size: 0.65rem;
-            font-weight: 700;
-        }
-        .badge-role.admin {
-            background: rgba(245, 138, 31, 0.15);
-            color: var(--primary);
-            border: 1px solid rgba(245, 138, 31, 0.3);
-        }
-        .badge-role.atendente {
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--info);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .user-table .action-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 0.75rem;
-            padding: 0.2rem 0.4rem;
-            border-radius: var(--radius-sm);
-            transition: all var(--transition);
-        }
+        .modal .field select:focus, .modal .field input:focus, .modal .field textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+        .modal .field textarea { min-height: 90px; resize: vertical; }
+ 
+        .modal .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+        .modal .modal-actions button { padding: 0.45rem 1.2rem; border-radius: var(--radius-full); border: none; font-weight: 700; font-size: 0.76rem; cursor: pointer; transition: all var(--transition); font-family: var(--font-body); }
+        .modal .modal-actions .save { background: var(--primary); color: #fff; }
+        .modal .modal-actions .save:hover { background: var(--primary-dark); }
+        .modal .modal-actions .cancel { background: var(--border); color: var(--text-secondary); }
+        .modal .modal-actions .cancel:hover { background: var(--text-muted); color: #fff; }
+ 
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); }
+        .empty-state i { font-size: 2.4rem; display: block; margin-bottom: 0.6rem; opacity: 0.3; }
+        .empty-state p { font-size: 0.9rem; font-weight: 600; }
+        .empty-state .sub { font-size: 0.75rem; opacity: 0.6; }
+ 
+        .footer { text-align: center; padding: 1.6rem; color: var(--text-muted); font-size: 0.7rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+        .footer span { color: var(--primary); font-weight: 700; }
+ 
+        .user-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .user-table th { background: var(--navy-900); color: #fff; padding: 0.7rem 1rem; text-align: left; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3px; }
+        .user-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.78rem; color: var(--text); }
+        .user-table tr:last-child td { border-bottom: none; }
+        .user-table tr:hover { background: var(--primary-glow); }
+        .user-table .badge-role { display: inline-block; padding: 0.18rem 0.6rem; border-radius: var(--radius-full); font-size: 0.63rem; font-weight: 800; }
+        .badge-role.admin { background: rgba(245, 138, 31, 0.15); color: var(--primary); border: 1px solid rgba(245, 138, 31, 0.3); }
+        .badge-role.atendente { background: rgba(59, 130, 246, 0.15); color: var(--info); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .user-table .action-btn { background: transparent; border: none; cursor: pointer; font-size: 0.75rem; padding: 0.2rem 0.4rem; border-radius: var(--radius-sm); transition: all var(--transition); }
         .user-table .action-btn.edit { color: var(--info); }
         .user-table .action-btn.edit:hover { background: rgba(59, 130, 246, 0.1); }
         .user-table .action-btn.delete { color: var(--danger); }
         .user-table .action-btn.delete:hover { background: rgba(239, 68, 68, 0.1); }
-
+ 
+        .hist-item {
+            display: flex; justify-content: space-between; align-items: center; gap: 0.8rem;
+            padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem; background: var(--bg);
+        }
+        .hist-item .hist-info { flex: 1; min-width: 0; }
+        .hist-item .hist-label { font-size: 0.62rem; font-weight: 800; color: var(--cat-color, var(--primary)); text-transform: uppercase; letter-spacing: 0.3px; }
+        .hist-item .hist-time { font-size: 0.68rem; color: var(--text-muted); margin-left: 0.5rem; }
+        .hist-item .hist-text { font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem; }
+ 
+        .stats-mini { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 0.8rem 0 1.2rem; }
+        .stats-mini .mini-card { flex: 1; min-width: 130px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.7rem 0.9rem; }
+        .stats-mini .mini-card .mini-num { font-size: 1.3rem; font-weight: 800; color: var(--primary); font-family: var(--font-display); }
+        .stats-mini .mini-card .mini-label { font-size: 0.68rem; color: var(--text-secondary); font-weight: 600; }
+ 
         /* ===== MENSAGEM SUGERIDA ===== */
         .msg-card.sugerida {
             border-left-color: var(--success) !important;
-            background: linear-gradient(90deg, rgba(34, 197, 94, 0.06), transparent 60%);
-            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15), var(--shadow);
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.07), transparent 60%);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.16), var(--shadow);
         }
-
-        .msg-card.sugerida .label {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--success);
-            border-color: rgba(34, 197, 94, 0.3);
-        }
-
-        .msg-card.sugerida .label::after {
-            content: ' ★ Sugerida';
-            font-weight: 700;
-            opacity: 0.9;
-            margin-left: 4px;
-            font-size: 0.55rem;
-            color: var(--success);
-        }
-
+        .msg-card.sugerida .label { background: rgba(34, 197, 94, 0.15); color: var(--success); border-color: rgba(34, 197, 94, 0.3); }
+        .msg-card.sugerida .label::after { content: ' \2605 Sugerida'; font-weight: 800; opacity: 0.9; margin-left: 4px; font-size: 0.58rem; color: var(--success); }
+ 
         @media (max-width: 768px) {
-            .header {
-                padding: 0.5rem 1rem;
-                flex-direction: column;
-            }
-            .header-left { width: 100%; justify-content: center; }
-            .header-right { width: 100%; justify-content: center; }
-            .header-title { font-size: 0.7rem; }
-            .logo .brand { font-size: 1.2rem; }
+            .header { padding: 0.55rem 1rem; flex-direction: column; }
+            .header-left, .header-right { width: 100%; justify-content: center; }
+            .header-title { font-size: 0.72rem; }
+            .logo .brand { font-size: 0.95rem; }
             .logo-divider { display: none; }
             .container { padding: 0.8rem; }
-            .stats-bar {
-                border-radius: var(--radius);
-                justify-content: center;
-                padding: 0.5rem 0.8rem;
-                gap: 0.6rem;
-            }
+            .stats-bar { border-radius: var(--radius); justify-content: center; padding: 0.55rem 0.8rem; gap: 0.6rem; }
             .stats-bar .stat { font-size: 0.7rem; }
             .toolbar { flex-direction: column; align-items: stretch; }
             .search-box { min-width: auto; }
             .filter-bar { justify-content: center; }
             .btn-add { justify-content: center; }
-            .tabs-wrapper {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                padding: 0.2rem;
-                gap: 0.1rem;
-            }
-            .tab-btn { font-size: 0.65rem; padding: 0.2rem 0.6rem; white-space: nowrap; }
+            .tabs-wrapper { flex-wrap: nowrap; overflow-x: auto; padding: 0.25rem; gap: 0.15rem; }
+            .tab-btn { font-size: 0.68rem; padding: 0.35rem 0.7rem; white-space: nowrap; }
             .msg-card { flex-direction: column; padding: 0.7rem 0.8rem; }
             .msg-actions { width: 100%; justify-content: flex-end; }
             .msg-content { font-size: 0.8rem; }
             .copy-btn { width: 100%; justify-content: center; }
             .clock { display: none; }
-            .login-card { padding: 1.5rem 1rem; }
+            .login-card { padding: 1.7rem 1.2rem; }
             .modal { padding: 1rem; margin: 1rem; }
-            .user-table th,
-            .user-table td { padding: 0.5rem 0.6rem; font-size: 0.7rem; }
+            .user-table th, .user-table td { padding: 0.5rem 0.6rem; font-size: 0.7rem; }
         }
-
         @media (max-width: 480px) {
-            .logo .brand { font-size: 1rem; }
-            .tab-btn { font-size: 0.55rem; padding: 0.15rem 0.4rem; }
-            .stats-bar .stat { font-size: 0.6rem; }
-            .msg-content { font-size: 0.75rem; }
-            .section-title { font-size: 0.85rem; }
+            .logo .brand { font-size: 0.85rem; }
+            .tab-btn { font-size: 0.6rem; padding: 0.3rem 0.55rem; }
+            .stats-bar .stat { font-size: 0.62rem; }
+            .msg-content { font-size: 0.76rem; }
+            .section-title { font-size: 0.88rem; }
         }
-
+ 
         .focus-mode .stats-bar { display: none; }
         .focus-mode .progress-wrapper { display: none; }
         .focus-mode .search-box { display: none; }
@@ -998,126 +449,149 @@
     </style>
 </head>
 <body>
-
+ 
     <!-- LOGIN -->
     <div class="login-screen" id="loginScreen">
+        <svg class="net-bg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+            <line class="edge" x1="120" y1="120" x2="340" y2="220"></line>
+            <line class="edge" x1="340" y1="220" x2="560" y2="140"></line>
+            <line class="edge" x1="340" y1="220" x2="420" y2="420"></line>
+            <line class="edge" x1="420" y1="420" x2="640" y2="470"></line>
+            <line class="edge" x1="420" y1="420" x2="200" y2="470"></line>
+            <line class="edge" x1="560" y1="140" x2="700" y2="260"></line>
+            <line class="edge" x1="120" y1="120" x2="150" y2="380"></line>
+            <circle class="node" cx="120" cy="120" r="4"></circle>
+            <circle class="node b" cx="340" cy="220" r="4"></circle>
+            <circle class="node c" cx="560" cy="140" r="4"></circle>
+            <circle class="node d" cx="420" cy="420" r="4"></circle>
+            <circle class="node" cx="640" cy="470" r="4"></circle>
+            <circle class="node b" cx="200" cy="470" r="4"></circle>
+            <circle class="node c" cx="700" cy="260" r="4"></circle>
+            <circle class="node d" cx="150" cy="380" r="4"></circle>
+        </svg>
         <div class="login-card">
-            <div class="logo"><i class="fas fa-wifi"></i> WebLink+</div>
-            <div class="sub">Painel de Atendimento</div>
+            <img class="logo-img" src="data:image/webp;base64,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" alt="WebLink+ Fibra" />
+            <div class="sub">Painel de Atendimento &middot; uso interno</div>
             <div class="field">
-                <label>👤 Usuário</label>
+                <label>Usuário</label>
                 <div class="input-wrapper">
-                    <i class="fas fa-user"></i>
+                    <i data-icon="user"></i>
                     <input type="text" id="loginUser" placeholder="Digite seu usuário" />
                 </div>
             </div>
             <div class="field">
-                <label>🔑 Senha</label>
+                <label>Senha</label>
                 <div class="input-wrapper">
-                    <i class="fas fa-lock"></i>
+                    <i data-icon="lock"></i>
                     <input type="password" id="loginPass" placeholder="Digite sua senha" />
                 </div>
             </div>
             <div class="field">
-                <label>📝 Nome do Atendente</label>
+                <label>Nome do atendente</label>
                 <div class="input-wrapper">
-                    <i class="fas fa-id-badge"></i>
+                    <i data-icon="id-badge"></i>
                     <input type="text" id="loginAtendente" placeholder="Ex: Bernardo, Joyce, Maria..." />
                 </div>
             </div>
-            <div class="error-msg" id="loginError">❌ Usuário ou senha inválidos!</div>
-            <button class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-            <div class="footer-login"><strong>WebLink+</strong> — Acesso restrito a colaboradores</div>
+            <div class="error-msg" id="loginError">Usuário ou senha inválidos!</div>
+            <button class="btn-login" id="loginBtn"><i data-icon="sign-in-alt"></i> Entrar</button>
+            <div class="footer-login"><strong>WebLink+ Fibra</strong> — acesso restrito a colaboradores</div>
         </div>
     </div>
-
+ 
     <!-- SITE -->
     <div class="site-content" id="siteContent" style="display:none;">
-
+ 
         <header class="header">
             <div class="header-left">
                 <div class="logo">
-                    <span class="brand"><i class="fas fa-wifi"></i>WebLink+</span>
-                    <span class="tag">FIBRA</span>
+                    <img class="logo-img-small" src="data:image/webp;base64,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" alt="WebLink+" />
+                    <div class="brand-text">
+                        <span class="brand">Web<span>Link+</span></span>
+                        <span class="tag">FIBRA</span>
+                    </div>
                 </div>
                 <div class="logo-divider"></div>
                 <div class="header-title">
-                    📋 <span>Painel</span> de Atendimento
-                    <span class="atendente">| 👤 <strong id="atendenteNome">Bernardo</strong></span>
+                    <span>Painel</span> de Atendimento
+                    <span class="atendente">| <strong id="atendenteNome">Bernardo</strong></span>
                 </div>
             </div>
             <div class="header-right">
-                <div class="clock" id="clockDisplay">⏰ 00:00:00</div>
-                <button class="btn-icon" id="usersBtn" title="Gerenciar Usuários" style="display:none;"><i class="fas fa-users-cog"></i></button>
-                <button class="btn-icon" id="darkToggle" title="Modo escuro"><i class="fas fa-moon"></i></button>
-                <button class="btn-icon" id="focusToggle" title="Modo foco"><i class="fas fa-expand"></i></button>
-                <button class="btn-icon" id="favFilterBtn" title="Favoritos"><i class="fas fa-star"></i> <span class="badge" id="favCount">0</span></button>
-                <button class="btn-icon danger" id="logoutBtn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                <div class="clock" id="clockDisplay">00:00:00</div>
+                <button class="btn-icon" id="historyBtn" title="Histórico de mensagens"><i data-icon="clock-rotate-left"></i></button>
+                <button class="btn-icon" id="exportBtn" title="Exportar dados (backup)"><i data-icon="download"></i></button>
+                <button class="btn-icon" id="importBtn" title="Importar dados (backup)"><i data-icon="upload"></i></button>
+                <input type="file" id="importFileInput" accept="application/json" style="display:none;" />
+                <button class="btn-icon" id="usersBtn" title="Gerenciar usuários" style="display:none;"><i data-icon="users-cog"></i></button>
+                <button class="btn-icon" id="darkToggle" title="Modo escuro"><i data-icon="moon"></i></button>
+                <button class="btn-icon" id="focusToggle" title="Modo foco"><i data-icon="expand"></i></button>
+                <button class="btn-icon" id="favFilterBtn" title="Favoritos"><i data-icon="star"></i><span class="badge" id="favCount">0</span></button>
+                <button class="btn-icon danger" id="logoutBtn" title="Sair"><i data-icon="sign-out-alt"></i></button>
             </div>
         </header>
-
+ 
         <div class="container">
-
+ 
             <div class="stats-bar">
-                <div class="stat"><i class="fas fa-message"></i> Mensagens <span class="num" id="totalMessages">0</span></div>
-                <div class="stat"><i class="fas fa-tag"></i> Categorias <span class="num" id="totalCategories">0</span></div>
-                <div class="stat"><i class="fas fa-copy"></i> Copiadas hoje <span class="num" id="copiedCount">0</span></div>
-                <div class="stat"><i class="fas fa-star"></i> Favoritas <span class="num" id="favoritesCount">0</span></div>
+                <div class="stat"><i data-icon="message"></i> Mensagens <span class="num" id="totalMessages">0</span></div>
+                <div class="stat"><i data-icon="tag"></i> Categorias <span class="num" id="totalCategories">0</span></div>
+                <div class="stat"><i data-icon="copy"></i> Copiadas hoje <span class="num" id="copiedCount">0</span></div>
+                <div class="stat"><i data-icon="star"></i> Favoritas <span class="num" id="favoritesCount">0</span></div>
             </div>
-
+ 
             <div class="progress-wrapper">
                 <div class="progress-label">
-                    <span>📊 Progresso do expediente</span>
+                    <span>Progresso do expediente</span>
                     <span id="progressText">0%</span>
                 </div>
-                <div class="progress-track">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
+                <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
             </div>
-
+ 
             <div class="toolbar">
                 <div class="filter-bar">
-                    <button class="filter-btn active" data-filter="all">📌 Todas</button>
-                    <button class="filter-btn" data-filter="favorites">⭐ Favoritas</button>
+                    <button class="filter-btn active" data-filter="all"><i data-icon="layer-group"></i> Todas</button>
+                    <button class="filter-btn" data-filter="favorites"><i data-icon="star"></i> Favoritas</button>
                 </div>
                 <div class="search-box">
-                    <i class="fas fa-search"></i>
+                    <i data-icon="search"></i>
                     <input type="text" id="searchInput" placeholder="Buscar mensagem..." />
-                    <span class="result-count" id="resultCount">0</span>
+                    <span class="kbd-hint" id="searchHint">/</span>
+                    <span class="result-count" id="resultCount" style="display:none;">0</span>
                 </div>
-                <button class="btn-add" id="btnAddMsg"><i class="fas fa-plus"></i> Nova</button>
+                <button class="btn-add" id="btnAddMsg"><i data-icon="plus"></i> Nova</button>
             </div>
-
+ 
             <div class="tabs-wrapper" id="tabsWrapper"></div>
             <div id="tabContainer"></div>
-
+ 
         </div>
-
+ 
         <footer class="footer">
-            <p>📋 <span>WebLink+ Fibra</span> — Painel de Atendimento</p>
-            <p style="margin-top:0.1rem;opacity:0.5;font-size:0.6rem;">Copie e cole com agilidade no atendimento</p>
+            <p><span>WebLink+ Fibra</span> — Painel de Atendimento</p>
+            <p style="margin-top:0.15rem;opacity:0.5;font-size:0.62rem;">Copie e cole com agilidade no atendimento</p>
         </footer>
-
+ 
     </div>
-
+ 
     <!-- MODAL MENSAGEM -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-head">
-                <h2 id="modalTitle">Nova Mensagem</h2>
+                <h2 id="modalTitle"><i data-icon="message"></i> Nova Mensagem</h2>
                 <button class="close" id="modalClose">&times;</button>
             </div>
             <form id="msgForm">
                 <div class="field">
-                    <label>📂 Categoria</label>
+                    <label>Categoria</label>
                     <select id="formCategory" required></select>
                 </div>
                 <div class="field">
-                    <label>🏷️ Label (etiqueta)</label>
+                    <label>Label (etiqueta)</label>
                     <input type="text" id="formLabel" placeholder="Ex: Bom dia" required />
                 </div>
                 <div class="field">
-                    <label>📝 Mensagem</label>
+                    <label>Mensagem</label>
                     <textarea id="formMessage" placeholder="Digite o conteúdo da mensagem..." required></textarea>
                 </div>
                 <div class="modal-actions">
@@ -1127,41 +601,41 @@
             </form>
         </div>
     </div>
-
+ 
     <!-- MODAL USUÁRIOS -->
     <div class="modal-overlay" id="usersModalOverlay">
-        <div class="modal" style="max-width:700px;">
+        <div class="modal" style="max-width:760px;">
             <div class="modal-head">
-                <h2>👥 Gerenciar Usuários</h2>
+                <h2><i data-icon="users-cog"></i> Gerenciar Usuários</h2>
                 <button class="close" id="usersModalClose">&times;</button>
             </div>
-            <button class="btn-add" id="btnAddUser" style="margin-bottom:1rem;"><i class="fas fa-user-plus"></i> Novo Usuário</button>
+            <button class="btn-add" id="btnAddUser" style="margin-bottom:1rem;"><i data-icon="user-plus"></i> Novo Usuário</button>
             <div id="usersTableContainer"></div>
         </div>
     </div>
-
+ 
     <!-- MODAL CRIAR/EDITAR USUÁRIO -->
     <div class="modal-overlay" id="userFormOverlay">
         <div class="modal" style="max-width:450px;">
             <div class="modal-head">
-                <h2 id="userFormTitle">Novo Usuário</h2>
+                <h2 id="userFormTitle"><i data-icon="user-plus"></i> Novo Usuário</h2>
                 <button class="close" id="userFormClose">&times;</button>
             </div>
             <form id="userForm">
                 <div class="field">
-                    <label>👤 Nome de Usuário (login)</label>
+                    <label>Nome de usuário (login)</label>
                     <input type="text" id="userFormUsername" placeholder="Ex: joao.silva" required />
                 </div>
                 <div class="field">
-                    <label>📝 Nome do Atendente</label>
+                    <label>Nome do atendente</label>
                     <input type="text" id="userFormNome" placeholder="Ex: João Silva" required />
                 </div>
                 <div class="field">
-                    <label>🔑 Senha</label>
+                    <label>Senha</label>
                     <input type="text" id="userFormSenha" placeholder="Digite a senha" required />
                 </div>
                 <div class="field">
-                    <label>🎭 Tipo de Usuário</label>
+                    <label>Tipo de usuário</label>
                     <select id="userFormRole">
                         <option value="atendente">Atendente</option>
                         <option value="admin">Administrador</option>
@@ -1174,10 +648,89 @@
             </form>
         </div>
     </div>
-
+ 
+    <!-- MODAL HISTÓRICO -->
+    <div class="modal-overlay" id="historyModalOverlay">
+        <div class="modal" style="max-width:560px;">
+            <div class="modal-head">
+                <h2><i data-icon="clock-rotate-left"></i> Histórico de mensagens</h2>
+                <button class="close" id="historyModalClose">&times;</button>
+            </div>
+            <div class="stats-mini" id="statsMiniContainer"></div>
+            <div id="historyListContainer"></div>
+            <div class="modal-actions">
+                <button type="button" class="cancel" id="historyClearBtn">Limpar histórico</button>
+            </div>
+        </div>
+    </div>
+ 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
+ 
+            // =============================================================
+            // ÍCONES SVG (embutidos, sem depender de fonte externa)
+            // =============================================================
+            const ICON_PATHS = {
+                user: '<circle cx="12" cy="8" r="3.2"/><path d="M5 20c1.2-4 4-5.5 7-5.5s5.8 1.5 7 5.5"/>',
+                lock: '<rect x="5" y="10.5" width="14" height="9" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+                'id-badge': '<rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="12" cy="10" r="2.3"/><path d="M8.5 15.5h7M9.5 18h5"/>',
+                'sign-in-alt': '<path d="M11 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M14 8l4 4-4 4"/><path d="M18 12H8"/>',
+                'sign-out-alt': '<path d="M13 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/>',
+                'users-cog': '<circle cx="9" cy="8" r="2.8"/><path d="M4 19c.6-3.2 2.6-4.8 5-4.8s4.4 1.6 5 4.8"/><circle cx="18" cy="7" r="1.8"/><path d="M18 4v.6M18 9.4V10M15.7 5.3l.5.3M19.8 8.4l.5.3M15.7 8.7l.5-.3M19.8 5.6l.5-.3"/>',
+                moon: '<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>',
+                sun: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',
+                expand: '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/>',
+                compress: '<path d="M4 9h5V4M4 15h5v5M20 9h-5V4M20 15h-5v5"/>',
+                star: '<path d="M12 3.5l2.5 5.5 6 .6-4.5 4 1.3 6-5.3-3-5.3 3 1.3-6-4.5-4 6-.6z"/>',
+                message: '<path d="M4 5h16v10H8l-4 4z"/>',
+                tag: '<path d="M12 4h6v6l-8.5 8.5a1.4 1.4 0 0 1-2 0l-4-4a1.4 1.4 0 0 1 0-2z"/><circle cx="15.6" cy="8.4" r="1.1"/>',
+                copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M5 15.5H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9.5a1 1 0 0 1 1 1v1"/>',
+                'layer-group': '<path d="M12 3l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/>',
+                search: '<circle cx="10.5" cy="10.5" r="6"/><path d="M20 20l-5-5"/>',
+                plus: '<path d="M12 5v14M5 12h14"/>',
+                'clock-rotate-left': '<path d="M4.5 9A8 8 0 1 1 5 15.5"/><path d="M4 4v5h5"/><path d="M12 8v4l3 2"/>',
+                download: '<path d="M12 4v11M8 11l4 4 4-4"/><path d="M5 19h14"/>',
+                upload: '<path d="M12 19V8M8 12l4-4 4 4"/><path d="M5 19h14"/>',
+                inbox: '<path d="M4 12h4l2 3h4l2-3h4"/><path d="M4 12l1.5-6h13L20 12v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>',
+                pen: '<path d="M4 20l1-4 11-11 3 3-11 11z"/><path d="M14 6l3 3"/>',
+                trash: '<path d="M5 7h14"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"/>',
+                check: '<path d="M5 12l5 5L20 6"/>',
+                'circle-check': '<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.2l2.6 2.6 5-5.2"/>',
+                'circle-info': '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>',
+                'circle-xmark': '<circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.3l5.4 5.4M14.7 9.3l-5.4 5.4"/>',
+                'triangle-exclamation': '<path d="M12 4.2l9 15.8H3z"/><path d="M12 10v3.7"/><circle cx="12" cy="16.7" r="1" fill="currentColor" stroke="none"/>',
+                'flag-checkered': '<path d="M6 3v18"/><path d="M6 4.5h12l-3 3.5 3 3.5H6"/>',
+                'life-ring': '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.2"/><path d="M6.3 6.3l3.3 3.3M17.7 6.3l-3.3 3.3M6.3 17.7l3.3-3.3M17.7 17.7l-3.3-3.3"/>',
+                'list-check': '<path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 6l1.3 1.3L7.5 5M4 12l1.3 1.3 2.2-2.3M4 18l1.3 1.3 2.2-2.3"/>',
+                'sack-dollar': '<path d="M9 4h6l1.7 3.6A5.6 5.6 0 0 1 18 11v6a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-6a5.6 5.6 0 0 1 1.3-3.4z"/><path d="M12 9.3v6.4M10.2 14.1c.3.6.9 1 1.8 1 1 0 1.9-.6 1.9-1.4s-.8-1.2-1.9-1.5c-1-.3-1.8-.7-1.8-1.5 0-.8.8-1.4 1.8-1.4.7 0 1.4.3 1.7.9"/>',
+                tv: '<rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M9 21h6M12 17v4"/>',
+                'mug-hot': '<path d="M5 9h11v7a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M16 11h1.5a2.3 2.3 0 0 1 0 4.6H16"/><path d="M8 5.3c0 .8-1 1-1 1.9M11.5 5.3c0 .8-1 1-1 1.9"/>',
+                'champagne-glasses': '<path d="M7.3 3h3.8l-.6 5.6a1.6 1.6 0 0 1-1.3 1.4A1.6 1.6 0 0 1 7.9 8.6z"/><path d="M9.2 10v9.5M6.8 19.5h4.8"/><path d="M14.9 4h4.8l-.6 4.9a1.8 1.8 0 0 1-3.6 0z"/><path d="M17.3 8.9V16M15.4 16h3.8"/>',
+                folder: '<path d="M4 6a1 1 0 0 1 1-1h4l2 2h8a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>',
+                'user-plus': '<circle cx="9" cy="8" r="3"/><path d="M3.5 20c.7-3.6 2.9-5.4 5.5-5.4s4.8 1.8 5.5 5.4"/><path d="M18 8v5M15.5 10.5h5"/>'
+            };
+            const FILLED_ICONS = ['star'];
+            function svgIcon(name) {
+                const d = ICON_PATHS[name] || ICON_PATHS['circle-info'];
+                const filled = FILLED_ICONS.includes(name);
+                return `<svg class="icon" viewBox="0 0 24 24" fill="${filled ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+            }
+            function convertIcons(root) {
+                if (!root || root.nodeType !== 1) return;
+                if (root.hasAttribute && root.hasAttribute('data-icon')) {
+                    root.innerHTML = svgIcon(root.getAttribute('data-icon'));
+                }
+                if (root.querySelectorAll) {
+                    root.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = svgIcon(el.getAttribute('data-icon')); });
+                }
+            }
+            convertIcons(document.body);
+            new MutationObserver(function(mutations) {
+                mutations.forEach(function(m) {
+                    m.addedNodes.forEach(function(node) { convertIcons(node); });
+                });
+            }).observe(document.body, { childList: true, subtree: true });
+ 
             // =============================================================
             // USUÁRIOS PADRÃO
             // =============================================================
@@ -1185,17 +738,36 @@
                 'bernardoaam': { senha: 'Db880559@', nome: 'Bernardo', role: 'admin' },
                 'joyce': { senha: '12345678', nome: 'Joyce', role: 'atendente' }
             };
-
+ 
             let USERS = JSON.parse(localStorage.getItem('weblink_users')) || DEFAULT_USERS;
-
-            function saveUsers() {
-                localStorage.setItem('weblink_users', JSON.stringify(USERS));
-            }
-
+            function saveUsers() { localStorage.setItem('weblink_users', JSON.stringify(USERS)); }
+ 
             let currentUser = null;
             let currentAtendente = null;
             let currentRole = null;
-
+ 
+            // =============================================================
+            // CATEGORIAS: cores e ícones (identidade visual por categoria)
+            // =============================================================
+            const CATEGORY_META = {
+                abertura:     { icon: 'sun',            color: '#f58a1f' },
+                encerramento: { icon: 'flag-checkered', color: '#8b5cf6' },
+                suporte:      { icon: 'life-ring',      color: '#3b82f6' },
+                checklist:    { icon: 'list-check',     color: '#14b8a6' },
+                financeiro:   { icon: 'sack-dollar',    color: '#22c55e' },
+                streaming:    { icon: 'tv',             color: '#ec4899' },
+                pausa:        { icon: 'mug-hot',        color: '#64748b' },
+                eventos:      { icon: 'champagne-glasses', color: '#eab308' }
+            };
+            const FALLBACK_PALETTE = ['#f58a1f', '#3b82f6', '#22c55e', '#8b5cf6', '#ec4899', '#14b8a6', '#eab308', '#64748b'];
+            function getCatMeta(catId) {
+                if (CATEGORY_META[catId]) return CATEGORY_META[catId];
+                let hash = 0;
+                for (let i = 0; i < catId.length; i++) hash = catId.charCodeAt(i) + ((hash << 5) - hash);
+                const color = FALLBACK_PALETTE[Math.abs(hash) % FALLBACK_PALETTE.length];
+                return { icon: 'folder', color };
+            }
+ 
             // =============================================================
             // LOGIN
             // =============================================================
@@ -1206,89 +778,71 @@
             const loginAtendente = document.getElementById('loginAtendente');
             const loginBtn = document.getElementById('loginBtn');
             const loginError = document.getElementById('loginError');
-
+ 
+            function enterSite(user, atendente, role) {
+                currentUser = user; currentAtendente = atendente; currentRole = role;
+                loginScreen.classList.add('hidden');
+                siteContent.style.display = 'block';
+                document.getElementById('atendenteNome').textContent = atendente;
+                document.getElementById('usersBtn').style.display = role === 'admin' ? 'flex' : 'none';
+            }
+ 
             if (sessionStorage.getItem('loggedIn') === 'true') {
                 const savedUser = sessionStorage.getItem('currentUser');
                 const savedAtendente = sessionStorage.getItem('currentAtendente');
                 const savedRole = sessionStorage.getItem('currentRole');
                 if (savedUser && USERS[savedUser]) {
-                    currentUser = savedUser;
-                    currentAtendente = savedAtendente || USERS[savedUser].nome;
-                    currentRole = savedRole || USERS[savedUser].role;
-                    loginScreen.classList.add('hidden');
-                    siteContent.style.display = 'block';
-                    document.getElementById('atendenteNome').textContent = currentAtendente;
-                    if (currentRole === 'admin') {
-                        document.getElementById('usersBtn').style.display = 'flex';
-                    }
+                    enterSite(savedUser, savedAtendente || USERS[savedUser].nome, savedRole || USERS[savedUser].role);
                 }
             }
-
+ 
             loginBtn.addEventListener('click', function() {
                 const user = loginUser.value.trim().toLowerCase();
                 const pass = loginPass.value.trim();
                 const atendente = loginAtendente.value.trim();
-
+ 
                 if (!atendente) {
-                    loginError.textContent = '❌ Por favor, informe o nome do atendente!';
+                    loginError.textContent = 'Por favor, informe o nome do atendente!';
                     loginError.classList.add('show');
                     return;
                 }
-
+ 
                 if (USERS[user] && USERS[user].senha === pass) {
-                    currentUser = user;
-                    currentAtendente = atendente;
-                    currentRole = USERS[user].role;
-
                     sessionStorage.setItem('loggedIn', 'true');
                     sessionStorage.setItem('currentUser', user);
                     sessionStorage.setItem('currentAtendente', atendente);
-                    sessionStorage.setItem('currentRole', currentRole);
-
-                    loginScreen.classList.add('hidden');
-                    siteContent.style.display = 'block';
-                    document.getElementById('atendenteNome').textContent = atendente;
+                    sessionStorage.setItem('currentRole', USERS[user].role);
                     loginError.classList.remove('show');
-
-                    if (currentRole === 'admin') {
-                        document.getElementById('usersBtn').style.display = 'flex';
-                    } else {
-                        document.getElementById('usersBtn').style.display = 'none';
-                    }
-
+                    enterSite(user, atendente, USERS[user].role);
                     initSite();
-                    toast(`👤 Bem-vindo(a), ${atendente}!`, 'success');
+                    toast(`Bem-vindo(a), ${atendente}!`, 'success');
                 } else {
-                    loginError.textContent = '❌ Usuário ou senha inválidos!';
+                    loginError.textContent = 'Usuário ou senha inválidos!';
                     loginError.classList.add('show');
                     loginPass.value = '';
                     loginPass.focus();
                 }
             });
-
+ 
             loginPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
             loginUser.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
             loginAtendente.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginBtn.click(); });
-
+ 
             document.getElementById('logoutBtn').addEventListener('click', function() {
                 if (confirm('Deseja realmente sair?')) {
                     sessionStorage.removeItem('loggedIn');
                     sessionStorage.removeItem('currentUser');
                     sessionStorage.removeItem('currentAtendente');
                     sessionStorage.removeItem('currentRole');
-                    currentUser = null;
-                    currentAtendente = null;
-                    currentRole = null;
+                    currentUser = null; currentAtendente = null; currentRole = null;
                     loginScreen.classList.remove('hidden');
                     siteContent.style.display = 'none';
-                    loginUser.value = '';
-                    loginPass.value = '';
-                    loginAtendente.value = '';
+                    loginUser.value = ''; loginPass.value = ''; loginAtendente.value = '';
                     loginError.classList.remove('show');
                     document.getElementById('usersBtn').style.display = 'none';
                 }
             });
-
+ 
             // =============================================================
             // GERENCIAR USUÁRIOS
             // =============================================================
@@ -1296,56 +850,45 @@
             const usersTableContainer = document.getElementById('usersTableContainer');
             const userFormOverlay = document.getElementById('userFormOverlay');
             let editingUser = null;
-
+ 
             document.getElementById('usersBtn').addEventListener('click', function() {
-                if (currentRole !== 'admin') {
-                    toast('Apenas administradores podem gerenciar usuários.', 'error');
-                    return;
-                }
+                if (currentRole !== 'admin') { toast('Apenas administradores podem gerenciar usuários.', 'error'); return; }
                 renderUsersTable();
                 usersModalOverlay.classList.add('open');
             });
-
-            document.getElementById('usersModalClose').addEventListener('click', function() {
-                usersModalOverlay.classList.remove('open');
-            });
-            usersModalOverlay.addEventListener('click', function(e) {
-                if (e.target === this) this.classList.remove('open');
-            });
-
+            document.getElementById('usersModalClose').addEventListener('click', function() { usersModalOverlay.classList.remove('open'); });
+            usersModalOverlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+ 
             function renderUsersTable() {
                 const users = Object.entries(USERS);
                 let html = `<table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Usuário</th>
-                            <th>Nome</th>
-                            <th>Tipo</th>
-                            <th style="text-align:center;">Ações</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Usuário</th><th>Nome</th><th>Tipo</th><th>Cópias hoje</th><th style="text-align:center;">Ações</th></tr></thead>
                     <tbody>`;
+                const todayKey = new Date().toDateString();
                 users.forEach(([username, data]) => {
                     const roleLabel = data.role === 'admin' ? 'Administrador' : 'Atendente';
                     const roleClass = data.role === 'admin' ? 'admin' : 'atendente';
                     const isMaster = username === 'bernardoaam';
+                    const stat = STATS[username];
+                    const todayCount = (stat && stat.byDate && stat.byDate[todayKey]) ? stat.byDate[todayKey] : 0;
                     html += `<tr>
                         <td>${username}</td>
                         <td>${data.nome}</td>
                         <td><span class="badge-role ${roleClass}">${roleLabel}</span></td>
+                        <td>${todayCount}</td>
                         <td style="text-align:center;">
-                            <button class="action-btn edit" onclick="editUser('${username}')" title="Editar"><i class="fas fa-pen"></i></button>
-                            ${isMaster ? '' : `<button class="action-btn delete" onclick="deleteUser('${username}')" title="Excluir"><i class="fas fa-trash"></i></button>`}
+                            <button class="action-btn edit" onclick="editUser('${username}')" title="Editar"><i data-icon="pen"></i></button>
+                            ${isMaster ? '' : `<button class="action-btn delete" onclick="deleteUser('${username}')" title="Excluir"><i data-icon="trash"></i></button>`}
                         </td>
                     </tr>`;
                 });
                 html += `</tbody></table>`;
                 usersTableContainer.innerHTML = html;
             }
-
+ 
             document.getElementById('btnAddUser').addEventListener('click', function() {
                 editingUser = null;
-                document.getElementById('userFormTitle').textContent = 'Novo Usuário';
+                document.getElementById('userFormTitle').innerHTML = '<i data-icon="user-plus"></i> Novo Usuário';
                 document.getElementById('userFormUsername').value = '';
                 document.getElementById('userFormUsername').disabled = false;
                 document.getElementById('userFormNome').value = '';
@@ -1353,22 +896,15 @@
                 document.getElementById('userFormRole').value = 'atendente';
                 userFormOverlay.classList.add('open');
             });
-
-            document.getElementById('userFormClose').addEventListener('click', function() {
-                userFormOverlay.classList.remove('open');
-            });
-            document.getElementById('userFormCancel').addEventListener('click', function() {
-                userFormOverlay.classList.remove('open');
-            });
-            userFormOverlay.addEventListener('click', function(e) {
-                if (e.target === this) this.classList.remove('open');
-            });
-
+            document.getElementById('userFormClose').addEventListener('click', function() { userFormOverlay.classList.remove('open'); });
+            document.getElementById('userFormCancel').addEventListener('click', function() { userFormOverlay.classList.remove('open'); });
+            userFormOverlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+ 
             window.editUser = function(username) {
                 const data = USERS[username];
                 if (!data) return;
                 editingUser = username;
-                document.getElementById('userFormTitle').textContent = 'Editar Usuário';
+                document.getElementById('userFormTitle').innerHTML = '<i data-icon="pen"></i> Editar Usuário';
                 document.getElementById('userFormUsername').value = username;
                 document.getElementById('userFormUsername').disabled = true;
                 document.getElementById('userFormNome').value = data.nome;
@@ -1376,12 +912,9 @@
                 document.getElementById('userFormRole').value = data.role;
                 userFormOverlay.classList.add('open');
             };
-
+ 
             window.deleteUser = function(username) {
-                if (username === 'bernardoaam') {
-                    toast('Não é possível excluir o usuário master.', 'error');
-                    return;
-                }
+                if (username === 'bernardoaam') { toast('Não é possível excluir o usuário master.', 'error'); return; }
                 if (confirm(`Deseja realmente excluir o usuário "${username}"?`)) {
                     delete USERS[username];
                     saveUsers();
@@ -1389,37 +922,28 @@
                     toast('Usuário excluído!', 'success');
                 }
             };
-
+ 
             document.getElementById('userForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const username = document.getElementById('userFormUsername').value.trim().toLowerCase();
                 const nome = document.getElementById('userFormNome').value.trim();
                 const senha = document.getElementById('userFormSenha').value.trim();
                 const role = document.getElementById('userFormRole').value;
-
-                if (!username || !nome || !senha) {
-                    toast('Preencha todos os campos!', 'warning');
-                    return;
-                }
-
+                if (!username || !nome || !senha) { toast('Preencha todos os campos!', 'warning'); return; }
                 if (editingUser) {
                     USERS[editingUser] = { senha, nome, role };
                     saveUsers();
                     toast('Usuário atualizado!', 'success');
                 } else {
-                    if (USERS[username]) {
-                        toast('Este usuário já existe!', 'error');
-                        return;
-                    }
+                    if (USERS[username]) { toast('Este usuário já existe!', 'error'); return; }
                     USERS[username] = { senha, nome, role };
                     saveUsers();
                     toast('Usuário criado!', 'success');
                 }
-
                 userFormOverlay.classList.remove('open');
                 renderUsersTable();
             });
-
+ 
             // =============================================================
             // FUNÇÕES AUXILIARES
             // =============================================================
@@ -1428,7 +952,7 @@
                 if (currentUser && USERS[currentUser]) return USERS[currentUser].nome;
                 return 'Atendente';
             }
-
+ 
             function processMessageText(text) {
                 const nome = getAtendenteNome();
                 let result = text.replace(/{atendente}/g, nome);
@@ -1436,23 +960,16 @@
                 result = result.replace(/Sou Bernardo ,/g, `Sou ${nome},`);
                 return result;
             }
-
-            // =============================================================
-            // SUGESTÃO AUTOMÁTICA POR HORÁRIO
-            // =============================================================
+ 
             function getSugestaoPorHorario() {
                 const hora = new Date().getHours();
-                if (hora >= 5 && hora < 12) {
-                    return { label: 'Bom dia', texto: 'Bom dia' };
-                } else if (hora >= 12 && hora < 18) {
-                    return { label: 'Boa tarde', texto: 'Boa tarde' };
-                } else {
-                    return { label: 'Boa noite', texto: 'Boa noite' };
-                }
+                if (hora >= 5 && hora < 12) return { label: 'Bom dia', texto: 'Bom dia' };
+                if (hora >= 12 && hora < 18) return { label: 'Boa tarde', texto: 'Boa tarde' };
+                return { label: 'Boa noite', texto: 'Boa noite' };
             }
-
+ 
             // =============================================================
-            // MENSAGENS
+            // MENSAGENS (dados padrão)
             // =============================================================
             const DEFAULT_MESSAGES = [
                 { id: 'm1', category: 'abertura', label: 'Bom dia',
@@ -1469,7 +986,6 @@
                     text: 'Foi um prazer te ajudar! Se precisar de mais alguma coisa, estou à disposição.\nSe puder, avalie o meu atendimento. Sua avaliação é muito importante para nós.\nObrigado e tenha uma ótima noite!' },
                 { id: 'm7', category: 'encerramento', label: 'Sem retorno',
                     text: 'Como não tivemos retorno por um tempo, vou encerrar por aqui.\nSe precisar, estou à disposição!' },
-
                 { id: 'm8', category: 'suporte', label: 'Coleta de informações',
                     text: 'Vou te ajudar da melhor forma possível.\nPode me passar alguns detalhes?\n\nEstá com lentidão, quedas ou oscilações?\nAcontece em qual horário? Desde quando?\nÉ em todos os dispositivos (celular, TV, computador)?\nÉ na casa toda ou em pontos específicos?\nOcorre em algum app específico?\nAssim consigo analisar e te ajudar mais rápido!' },
                 { id: 'm9', category: 'suporte', label: 'Coleta (variação)',
@@ -1508,7 +1024,6 @@
                     text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU TROCA DE SENHA DO APP WEBLINK.\nSENHA ALTERADA.\nNOVA SENHA:' },
                 { id: 'm26', category: 'suporte', label: 'Verificar viabilidade',
                     text: 'VERIFICAR VIABILIDADE:\nPROPRIETÁRIO:\nCONTATO:\nNOME DA FAZENDA:\nQUANTOS KM DA CIDADE:\nREFERÊNCIA DA LOCALIZAÇÃO:\nEQUIPAMENTOS:' },
-
                 { id: 'm27', category: 'checklist', label: 'Checklist conexão',
                     text: 'CHECKLIST -- ABERTURA DE ATENDIMENTO (PROBLEMAS DE CONEXÃO)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nPROBLEMA RELATADO:\nPOSSUI CONEXÃO CABEADA:\nSUPORTE REMOTO REALIZADO:\nSINAL DA FIBRA:\nTX:\nRX:' },
                 { id: 'm28', category: 'checklist', label: 'Sem conexão',
@@ -1521,7 +1036,6 @@
                     text: 'CHECKLIST -- ABERTURA DE ATENDIMENTO (AUXÍLIO)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nATENDIMENTO SOLICITADO:\nTAXA:' },
                 { id: 'm32', category: 'checklist', label: 'Ativação streaming',
                     text: 'CHECKLIST -- FECHAMENTO DE ATENDIMENTO (ATIVAÇÃO DE STREAMING)\n\nQUEM ENTROU EM CONTATO:\nCONTATO:\nSERVIÇO ATIVADO:\n(DEEZER / DISNEY+ / HBO MAX)\nE-MAIL CADASTRADO:\nSENHA CADASTRADA:\nATIVAÇÃO CONCLUÍDA' },
-
                 { id: 'm33', category: 'financeiro', label: 'Mudança de endereço',
                     text: 'Para mudança de endereço, me informe:\n\nNome completo do titular:\nCidade:\nBairro:\nRua:\nNúmero da casa:\n\nComo será feita uma nova instalação, temos uma taxa simbólica de R$100,00 a prazo.\nÀ vista conseguimos um desconto, ficando por R$70,00.\nBoa notícia: Se a casa já teve uma instalação da WebLink e for possível reutilizar o cabo, não haverá taxa!\n\nOs equipamentos (roteador e ONU) precisam estar no novo endereço na hora do atendimento.' },
                 { id: 'm34', category: 'financeiro', label: 'Desbloqueio em confiança',
@@ -1530,7 +1044,6 @@
                     text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU SEGUNDA VIA DE BOLETO.\nBOLETO ENVIADO.' },
                 { id: 'm36', category: 'financeiro', label: 'Liberação com comprovante',
                     text: 'CLIENTE ENTROU EM CONTATO PELO NÚMERO:\nSOLICITOU LIBERAÇÃO MEDIANTE COMPROVANTE DE PAGAMENTO.\nCOMPROVANTE ANEXADO E CONEXÃO LIBERADA.' },
-
                 { id: 'm37', category: 'streaming', label: 'WebLink TV 1',
                     text: 'Para acessar pelo CDN TV você primeiro precisa seguir esse passo a passo:\n\n1. Escolha do Provedor:\n- Ao acessar a plataforma, será solicitado que você selecione um provedor.\n- No campo de pesquisa, digite WEBLINK.\n\n2. Selecione a Opção Correta:\n- Duas opções devem aparecer, selecione a segunda opção: (WEBLINK TV) tv.weblinknet.com.br\n\n3. Login:\n- Depois disso, apenas digite os seus acessos:\n- Usuário:\n- Senha:\n\nApós o login, você terá acesso a todo conteúdo disponível.' },
                 { id: 'm38', category: 'streaming', label: 'WebLink TV 2',
@@ -1543,18 +1056,16 @@
                     text: 'Acesso Disney+ liberado!\nProntinho! Agora é só baixar ou acessar o aplicativo Disney+ e aproveitar.\nE-mail:\nSenha:\nQualquer dúvida é só chamar.\nBom proveito e bons episódios!' },
                 { id: 'm42', category: 'streaming', label: 'Deezer',
                     text: 'Foi adicionada a sua licença por aqui!\nO Deezer irá enviar um e-mail para você ativar a sua conta e realizar o seu acesso.\nCaso não receba em até 24 horas, pode me chamar por aqui que te ajudo.\n\nPara fazer o seu cadastro no Deezer, clique nesse link: https://www.deezer.com/br/activate/stennabr\n\n1. Primeiro, digite o seu CPF.\n2. Depois, informe o seu número de telefone.\n3. Em seguida, selecione a opção "Cadastre-se".\n4. Insira os seus dados pessoais e faça o seu cadastro.\n\nDivirta-se ouvindo suas músicas favoritas!' },
-
                 { id: 'm43', category: 'pausa', label: 'Intervalo 2h',
                     text: 'Estou saindo para o meu intervalo de 2 horas, porém deixarei seu atendimento em aberto para continuarmos quando eu retornar.\n\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.' },
                 { id: 'm44', category: 'pausa', label: 'Encerrando expediente',
                     text: 'Meu expediente se encerra agora, deixarei seu atendimento em aberto para continuarmos amanhã às 08:00.\nSe precisar de atendimento antes, digite #sair e inicie um novo atendimento.\nTenha uma ótima noite!' },
-
                 { id: 'm45', category: 'eventos', label: 'Solicitação evento',
                     text: 'INSTALAR EQUIPAMENTOS DE EVENTO PARA COBERTURA DE INTERNET\n\nDESCRIÇÃO DO EVENTO:\nLOCAL DO EVENTO:\nDATA DO EVENTO:\nRESPONSÁVEL:\nQUANTIDADE DE PESSOAS PREVISTA:\nINTERNET SERÁ UTILIZADA PARA: (PAGAMENTOS PIX, ACESSO AO PÚBLICO, TRANSMISSÕES AO VIVO)\nNECESSÁRIO ESPAÇO PARA BALÃO OU TENDA:' },
                 { id: 'm46', category: 'eventos', label: 'Retirada equipamentos',
                     text: 'RETIRADA DE EQUIPAMENTOS PARA EVENTO\n\nLOCAL:\nRESPONSÁVEL:\nEQUIPAMENTOS:' }
             ];
-
+ 
             const DEFAULT_CATEGORIES = [
                 { id: 'abertura', name: 'Abertura', shortcut: '1' },
                 { id: 'encerramento', name: 'Encerramento', shortcut: '2' },
@@ -1565,29 +1076,33 @@
                 { id: 'pausa', name: 'Pausa', shortcut: '7' },
                 { id: 'eventos', name: 'Eventos', shortcut: '8' }
             ];
-
+ 
             let messages = JSON.parse(localStorage.getItem('weblink_messages')) || DEFAULT_MESSAGES;
             let categories = JSON.parse(localStorage.getItem('weblink_categories')) || DEFAULT_CATEGORIES;
             let favorites = JSON.parse(localStorage.getItem('weblink_favorites')) || [];
             let copiedToday = parseInt(localStorage.getItem('copiedToday')) || 0;
             let lastDate = localStorage.getItem('lastDate') || '';
-
+            let HISTORY = JSON.parse(localStorage.getItem('weblink_history')) || {};
+            let STATS = JSON.parse(localStorage.getItem('weblink_stats')) || {};
+ 
             let currentTab = 'abertura';
             let currentFilter = 'all';
             let isFocusMode = false;
             let editingId = null;
-
+ 
             const today = new Date().toDateString();
             if (lastDate !== today) {
                 copiedToday = 0;
                 localStorage.setItem('copiedToday', '0');
                 localStorage.setItem('lastDate', today);
             }
-
+ 
             function saveMessages() { localStorage.setItem('weblink_messages', JSON.stringify(messages)); }
             function saveFavorites() { localStorage.setItem('weblink_favorites', JSON.stringify(favorites)); }
             function saveCopied() { localStorage.setItem('copiedToday', String(copiedToday)); }
-
+            function saveHistory() { localStorage.setItem('weblink_history', JSON.stringify(HISTORY)); }
+            function saveStats() { localStorage.setItem('weblink_stats', JSON.stringify(STATS)); }
+ 
             function updateStats() {
                 document.getElementById('totalMessages').textContent = messages.length;
                 document.getElementById('totalCategories').textContent = categories.length;
@@ -1595,13 +1110,11 @@
                 document.getElementById('favoritesCount').textContent = favorites.length;
                 document.getElementById('favCount').textContent = favorites.length;
             }
-
+ 
             function updateProgress() {
                 const now = new Date();
-                const start = new Date();
-                start.setHours(8, 0, 0);
-                const end = new Date();
-                end.setHours(18, 0, 0);
+                const start = new Date(); start.setHours(8, 0, 0);
+                const end = new Date(); end.setHours(18, 0, 0);
                 const total = end - start;
                 const elapsed = now - start;
                 let pct = Math.min((elapsed / total) * 100, 100);
@@ -1609,11 +1122,11 @@
                 document.getElementById('progressFill').style.width = pct + '%';
                 document.getElementById('progressText').textContent = Math.round(pct) + '%';
             }
-
+ 
             function updateClock() {
-                document.getElementById('clockDisplay').textContent = '⏰ ' + new Date().toLocaleTimeString('pt-BR');
+                document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('pt-BR');
             }
-
+ 
             function populateCategorySelect() {
                 const select = document.getElementById('formCategory');
                 select.innerHTML = '';
@@ -1625,107 +1138,94 @@
                     select.appendChild(opt);
                 });
             }
-
+ 
             function renderTabs() {
                 const wrapper = document.getElementById('tabsWrapper');
                 wrapper.innerHTML = '';
                 categories.forEach(cat => {
+                    const meta = getCatMeta(cat.id);
                     const btn = document.createElement('button');
                     btn.className = `tab-btn ${cat.id === currentTab ? 'active' : ''}`;
+                    btn.style.setProperty('--tab-color', meta.color);
                     const count = messages.filter(m => m.category === cat.id).length;
-                    btn.innerHTML = `${cat.name} <span class="count">${count}</span> <span class="shortcut">(Ctrl+${cat.shortcut})</span>`;
+                    btn.innerHTML = `<i data-icon="${meta.icon}"></i> ${cat.name} <span class="count">${count}</span>`;
+                    btn.title = `Ctrl+${cat.shortcut}`;
                     btn.dataset.tab = cat.id;
-                    btn.addEventListener('click', () => {
-                        currentTab = cat.id;
-                        renderTabs();
-                        renderMessages();
-                    });
+                    btn.addEventListener('click', () => { currentTab = cat.id; renderTabs(); renderMessages(); });
                     wrapper.appendChild(btn);
                 });
             }
-
+ 
             // =============================================================
             // RENDER MENSAGENS COM SUGESTÃO POR HORÁRIO
             // =============================================================
             function renderMessages() {
                 const container = document.getElementById('tabContainer');
                 const search = document.getElementById('searchInput').value.toLowerCase().trim();
-
+ 
                 let filtered = messages.filter(m => m.category === currentTab);
-
+ 
                 if (search) {
-                    filtered = filtered.filter(m =>
-                        m.text.toLowerCase().includes(search) ||
-                        m.label.toLowerCase().includes(search)
-                    );
+                    filtered = filtered.filter(m => m.text.toLowerCase().includes(search) || m.label.toLowerCase().includes(search));
                 }
-
                 if (currentFilter === 'favorites') {
                     filtered = filtered.filter(m => favorites.includes(m.id));
                 }
-
+ 
                 const sugestao = getSugestaoPorHorario();
-
                 filtered.sort((a, b) => {
                     const aSugerida = a.label === sugestao.label ? 0 : 1;
                     const bSugerida = b.label === sugestao.label ? 0 : 1;
                     if (aSugerida !== bSugerida) return aSugerida - bSugerida;
-
                     const aFav = favorites.includes(a.id) ? 0 : 1;
                     const bFav = favorites.includes(b.id) ? 0 : 1;
                     return aFav - bFav;
                 });
-
+ 
+                document.getElementById('resultCount').style.display = search ? 'inline-flex' : 'none';
+                document.getElementById('resultCount').textContent = filtered.length;
+ 
+                const catMeta = getCatMeta(currentTab);
                 if (filtered.length === 0) {
                     container.innerHTML = `
+                        <div class="section-title" style="--section-color:${catMeta.color}"><i data-icon="${catMeta.icon}"></i> ${categories.find(c => c.id === currentTab)?.name || currentTab}</div>
                         <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
+                            <i data-icon="inbox"></i>
                             <p>Nenhuma mensagem nesta categoria</p>
                             <span class="sub">Clique em "Nova" para adicionar</span>
                         </div>
                     `;
-                    document.getElementById('resultCount').textContent = '0';
                     return;
                 }
-
-                let html = '';
-                const catName = categories.find(c => c.id === currentTab)?.name || currentTab;
-                html += `<div class="section-title"><i class="fas fa-folder"></i> ${catName}</div>`;
-
+ 
+                let html = `<div class="section-title" style="--section-color:${catMeta.color}"><i data-icon="${catMeta.icon}"></i> ${categories.find(c => c.id === currentTab)?.name || currentTab}</div>`;
+ 
                 filtered.forEach(msg => {
                     const isFav = favorites.includes(msg.id);
                     const displayText = processMessageText(msg.text);
                     const isSugerida = msg.label === sugestao.label;
-
+                    const meta = getCatMeta(msg.category);
+ 
                     html += `
-                        <div class="msg-card ${isSugerida ? 'sugerida' : ''}">
+                        <div class="msg-card ${isSugerida ? 'sugerida' : ''}" style="--cat-color:${meta.color}">
                             <div class="msg-content">
                                 <span class="label">${msg.label}</span>
                                 ${displayText}
                             </div>
                             <div class="msg-actions">
-                                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${msg.id}')" title="Favoritar">
-                                    <i class="fas fa-star"></i>
-                                </button>
-                                <button class="edit-btn" onclick="editMessage('${msg.id}')" title="Editar">
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                                <button class="delete-btn" onclick="deleteMessage('${msg.id}')" title="Excluir">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                <button class="copy-btn" onclick="copyMsg('${msg.id}')">
-                                    <i class="fas fa-copy"></i> Copiar
-                                </button>
+                                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${msg.id}')" title="Favoritar"><i data-icon="star"></i></button>
+                                <button class="edit-btn" onclick="editMessage('${msg.id}')" title="Editar"><i data-icon="pen"></i></button>
+                                <button class="delete-btn" onclick="deleteMessage('${msg.id}')" title="Excluir"><i data-icon="trash"></i></button>
+                                <button class="copy-btn" onclick="copyMsg('${msg.id}', this)"><i data-icon="copy"></i> Copiar</button>
                             </div>
                         </div>
                     `;
                 });
-
+ 
                 container.innerHTML = html;
-                document.getElementById('resultCount').textContent = filtered.length;
             }
-
-            window.copyMsg = function(id) {
+ 
+            window.copyMsg = function(id, btnEl) {
                 const msg = messages.find(m => m.id === id);
                 if (!msg) return;
                 const displayText = processMessageText(msg.text);
@@ -1733,28 +1233,39 @@
                     copiedToday++;
                     saveCopied();
                     updateStats();
-                    document.querySelectorAll('.copy-btn').forEach(btn => {
-                        if (btn.closest('.msg-card')?.querySelector('.fav-btn')?.onclick?.toString().includes(id)) {
-                            btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-                            btn.classList.add('copied');
-                            setTimeout(() => {
-                                btn.innerHTML = '<i class="fas fa-copy"></i> Copiar';
-                                btn.classList.remove('copied');
-                            }, 2000);
-                        }
-                    });
+                    registerHistoryAndStats(msg);
+                    if (btnEl) {
+                        const original = btnEl.innerHTML;
+                        btnEl.innerHTML = '<i data-icon="check"></i> Copiado!';
+                        btnEl.classList.add('copied');
+                        setTimeout(() => { btnEl.innerHTML = original; btnEl.classList.remove('copied'); }, 2000);
+                    }
                 });
             };
-
+ 
+            function registerHistoryAndStats(msg) {
+                if (!currentUser) return;
+                const dateKey = new Date().toDateString();
+ 
+                if (!HISTORY[currentUser]) HISTORY[currentUser] = [];
+                HISTORY[currentUser].unshift({ id: msg.id, label: msg.label, category: msg.category, text: msg.text, ts: Date.now() });
+                HISTORY[currentUser] = HISTORY[currentUser].slice(0, 15);
+                saveHistory();
+ 
+                if (!STATS[currentUser]) STATS[currentUser] = { total: 0, byDate: {} };
+                STATS[currentUser].total = (STATS[currentUser].total || 0) + 1;
+                STATS[currentUser].byDate[dateKey] = (STATS[currentUser].byDate[dateKey] || 0) + 1;
+                saveStats();
+            }
+ 
             window.toggleFav = function(id) {
                 const idx = favorites.indexOf(id);
-                if (idx > -1) favorites.splice(idx, 1);
-                else favorites.push(id);
+                if (idx > -1) favorites.splice(idx, 1); else favorites.push(id);
                 saveFavorites();
                 renderMessages();
                 updateStats();
             };
-
+ 
             window.deleteMessage = function(id) {
                 if (!confirm('Deseja realmente excluir esta mensagem?')) return;
                 messages = messages.filter(m => m.id !== id);
@@ -1764,59 +1275,46 @@
                 updateStats();
                 toast('Mensagem excluída!', 'success');
             };
-
+ 
             window.editMessage = function(id) {
                 const msg = messages.find(m => m.id === id);
                 if (!msg) return;
                 editingId = id;
-                document.getElementById('modalTitle').textContent = 'Editar Mensagem';
+                document.getElementById('modalTitle').innerHTML = '<i data-icon="pen"></i> Editar Mensagem';
+                populateCategorySelect();
                 document.getElementById('formCategory').value = msg.category;
                 document.getElementById('formLabel').value = msg.label;
                 document.getElementById('formMessage').value = msg.text;
                 document.getElementById('modalSave').textContent = 'Atualizar';
                 document.getElementById('modalOverlay').classList.add('open');
             };
-
+ 
             document.getElementById('btnAddMsg').addEventListener('click', function() {
                 editingId = null;
-                document.getElementById('modalTitle').textContent = 'Nova Mensagem';
+                document.getElementById('modalTitle').innerHTML = '<i data-icon="plus"></i> Nova Mensagem';
+                populateCategorySelect();
                 document.getElementById('formCategory').value = currentTab;
                 document.getElementById('formLabel').value = '';
                 document.getElementById('formMessage').value = '';
                 document.getElementById('modalSave').textContent = 'Salvar';
-                populateCategorySelect();
                 document.getElementById('modalOverlay').classList.add('open');
             });
-
-            document.getElementById('modalClose').addEventListener('click', function() {
-                document.getElementById('modalOverlay').classList.remove('open');
-            });
-            document.getElementById('modalCancel').addEventListener('click', function() {
-                document.getElementById('modalOverlay').classList.remove('open');
-            });
-            document.getElementById('modalOverlay').addEventListener('click', function(e) {
-                if (e.target === this) this.classList.remove('open');
-            });
-
+ 
+            document.getElementById('modalClose').addEventListener('click', function() { document.getElementById('modalOverlay').classList.remove('open'); });
+            document.getElementById('modalCancel').addEventListener('click', function() { document.getElementById('modalOverlay').classList.remove('open'); });
+            document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+ 
             document.getElementById('msgForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const category = document.getElementById('formCategory').value;
                 const label = document.getElementById('formLabel').value.trim();
                 const text = document.getElementById('formMessage').value.trim();
-                if (!category || !label || !text) {
-                    toast('Preencha todos os campos!', 'warning');
-                    return;
-                }
+                if (!category || !label || !text) { toast('Preencha todos os campos!', 'warning'); return; }
                 if (editingId) {
                     const idx = messages.findIndex(m => m.id === editingId);
-                    if (idx > -1) {
-                        messages[idx] = { ...messages[idx], category, label, text };
-                        saveMessages();
-                        toast('Mensagem atualizada!', 'success');
-                    }
+                    if (idx > -1) { messages[idx] = { ...messages[idx], category, label, text }; saveMessages(); toast('Mensagem atualizada!', 'success'); }
                 } else {
-                    const newMsg = { id: 'm' + Date.now(), category, label, text };
-                    messages.push(newMsg);
+                    messages.push({ id: 'm' + Date.now(), category, label, text });
                     saveMessages();
                     toast('Mensagem adicionada!', 'success');
                 }
@@ -1825,7 +1323,104 @@
                 renderMessages();
                 updateStats();
             });
-
+ 
+            // =============================================================
+            // HISTÓRICO (modal)
+            // =============================================================
+            const historyModalOverlay = document.getElementById('historyModalOverlay');
+            document.getElementById('historyBtn').addEventListener('click', function() {
+                renderHistoryModal();
+                historyModalOverlay.classList.add('open');
+            });
+            document.getElementById('historyModalClose').addEventListener('click', function() { historyModalOverlay.classList.remove('open'); });
+            historyModalOverlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+ 
+            document.getElementById('historyClearBtn').addEventListener('click', function() {
+                if (!currentUser) return;
+                if (!confirm('Limpar seu histórico de mensagens copiadas?')) return;
+                HISTORY[currentUser] = [];
+                saveHistory();
+                renderHistoryModal();
+                toast('Histórico limpo!', 'success');
+            });
+ 
+            function renderHistoryModal() {
+                const stat = STATS[currentUser] || { total: 0, byDate: {} };
+                const todayKey = new Date().toDateString();
+                document.getElementById('statsMiniContainer').innerHTML = `
+                    <div class="mini-card"><div class="mini-num">${stat.byDate[todayKey] || 0}</div><div class="mini-label">Copiadas hoje</div></div>
+                    <div class="mini-card"><div class="mini-num">${stat.total || 0}</div><div class="mini-label">Total copiado</div></div>
+                `;
+                const list = HISTORY[currentUser] || [];
+                const container = document.getElementById('historyListContainer');
+                if (list.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i data-icon="clock-rotate-left"></i><p>Nenhuma mensagem copiada ainda</p></div>`;
+                    return;
+                }
+                let html = '';
+                list.forEach(item => {
+                    const meta = getCatMeta(item.category);
+                    const time = new Date(item.ts).toLocaleString('pt-BR');
+                    html += `
+                        <div class="hist-item" style="--cat-color:${meta.color}">
+                            <div class="hist-info">
+                                <span class="hist-label">${item.label}</span><span class="hist-time">${time}</span>
+                                <div class="hist-text">${item.text.split('\\n')[0]}</div>
+                            </div>
+                            <button class="copy-btn" onclick="copyMsg('${item.id}', this)" style="--cat-color:${meta.color}"><i data-icon="copy"></i></button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+ 
+            // =============================================================
+            // EXPORTAR / IMPORTAR (backup)
+            // =============================================================
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                const payload = {
+                    tipo: 'weblink_backup',
+                    exportadoEm: new Date().toISOString(),
+                    exportadoPor: getAtendenteNome(),
+                    messages, categories, favorites
+                };
+                const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `weblink-backup-${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                toast('Backup exportado!', 'success');
+            });
+ 
+            const importFileInput = document.getElementById('importFileInput');
+            document.getElementById('importBtn').addEventListener('click', function() { importFileInput.click(); });
+            importFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (!data.messages || !Array.isArray(data.messages)) { toast('Arquivo inválido: nenhuma mensagem encontrada.', 'error'); return; }
+                        if (!confirm(`Importar backup de ${data.exportadoEm ? new Date(data.exportadoEm).toLocaleString('pt-BR') : 'origem desconhecida'}?\n\nIsso vai substituir suas mensagens, categorias e favoritos atuais.`)) return;
+                        messages = data.messages;
+                        if (Array.isArray(data.categories)) categories = data.categories;
+                        if (Array.isArray(data.favorites)) favorites = data.favorites;
+                        saveMessages(); localStorage.setItem('weblink_categories', JSON.stringify(categories)); saveFavorites();
+                        renderTabs(); renderMessages(); updateStats(); populateCategorySelect();
+                        toast('Backup importado com sucesso!', 'success');
+                    } catch (err) {
+                        toast('Não foi possível ler o arquivo de backup.', 'error');
+                    }
+                    importFileInput.value = '';
+                };
+                reader.readAsText(file);
+            });
+ 
             function toast(msg, type = 'info') {
                 let container = document.getElementById('toastContainer');
                 if (!container) {
@@ -1836,16 +1431,16 @@
                 }
                 const el = document.createElement('div');
                 el.className = `toast ${type}`;
-                const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-                el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${msg}`;
+                const icons = { success: '<i data-icon="circle-check"></i>', error: '<i data-icon="circle-xmark"></i>', warning: '<i data-icon="triangle-exclamation"></i>', info: '<i data-icon="circle-info"></i>' };
+                el.innerHTML = `${icons[type] || icons.info} <span>${msg}</span>`;
                 container.appendChild(el);
                 setTimeout(() => {
                     el.style.opacity = '0';
-                    el.style.transform = 'translateX(100%)';
+                    el.style.transform = 'translateX(110%)';
                     setTimeout(() => el.remove(), 300);
                 }, 3000);
             }
-
+ 
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1854,55 +1449,51 @@
                     renderMessages();
                 });
             });
-
-            document.getElementById('searchInput').addEventListener('input', renderMessages);
-
+ 
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', renderMessages);
+            searchInput.addEventListener('focus', () => document.getElementById('searchHint').style.display = 'none');
+            searchInput.addEventListener('blur', () => { if (!searchInput.value) document.getElementById('searchHint').style.display = 'inline-block'; });
+ 
             document.getElementById('favFilterBtn').addEventListener('click', function() {
                 const isActive = this.classList.toggle('active');
                 currentFilter = isActive ? 'favorites' : 'all';
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                if (!isActive) {
-                    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
-                }
+                if (!isActive) document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
                 renderMessages();
             });
-
+ 
             document.getElementById('focusToggle').addEventListener('click', function() {
                 isFocusMode = !isFocusMode;
                 document.body.classList.toggle('focus-mode', isFocusMode);
-                this.innerHTML = isFocusMode ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+                this.innerHTML = isFocusMode ? '<i data-icon="compress"></i>' : '<i data-icon="expand"></i>';
             });
-
+ 
             if (localStorage.getItem('darkMode') === 'true') {
                 document.body.classList.add('dark');
-                document.getElementById('darkToggle').innerHTML = '<i class="fas fa-sun"></i>';
+                document.getElementById('darkToggle').innerHTML = '<i data-icon="sun"></i>';
             }
-
             document.getElementById('darkToggle').addEventListener('click', function() {
                 document.body.classList.toggle('dark');
                 const isDark = document.body.classList.contains('dark');
                 localStorage.setItem('darkMode', isDark);
-                this.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                this.innerHTML = isDark ? '<i data-icon="sun"></i>' : '<i data-icon="moon"></i>';
             });
-
+ 
             document.addEventListener('keydown', function(e) {
                 if (e.ctrlKey) {
                     const map = {};
                     categories.forEach(c => { map[c.shortcut] = c.id; });
                     const tab = map[e.key];
-                    if (tab) {
-                        e.preventDefault();
-                        currentTab = tab;
-                        renderTabs();
-                        renderMessages();
-                    }
-                    if (e.key === 'n') {
-                        e.preventDefault();
-                        document.getElementById('btnAddMsg').click();
-                    }
+                    if (tab) { e.preventDefault(); currentTab = tab; renderTabs(); renderMessages(); }
+                    if (e.key === 'n') { e.preventDefault(); document.getElementById('btnAddMsg').click(); }
+                    return;
                 }
+                const activeTag = document.activeElement ? document.activeElement.tagName : '';
+                const isTyping = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT';
+                if (e.key === '/' && !isTyping) { e.preventDefault(); searchInput.focus(); }
             });
-
+ 
             function initSite() {
                 setInterval(updateClock, 1000);
                 setInterval(updateProgress, 60000);
@@ -1914,32 +1505,16 @@
                 populateCategorySelect();
                 const nome = getAtendenteNome();
                 const sugestao = getSugestaoPorHorario();
-                console.log(`Site WebLink+ Atendimento carregado com sucesso!`);
-                console.log(`Atendente: ${nome}`);
-                console.log(`Tipo: ${currentRole}`);
-                console.log(`${messages.length} mensagens carregadas`);
-                console.log(`Sugestão do horário: ${sugestao.texto}`);
                 toast(`Bem-vindo(a), ${nome}! Sugestão: "${sugestao.texto}"`, 'success');
             }
-
-            if (sessionStorage.getItem('loggedIn') === 'true') {
-                const savedUser = sessionStorage.getItem('currentUser');
-                const savedAtendente = sessionStorage.getItem('currentAtendente');
-                const savedRole = sessionStorage.getItem('currentRole');
-                if (savedUser && USERS[savedUser]) {
-                    currentUser = savedUser;
-                    currentAtendente = savedAtendente || USERS[savedUser].nome;
-                    currentRole = savedRole || USERS[savedUser].role;
-                    document.getElementById('atendenteNome').textContent = currentAtendente;
-                    if (currentRole === 'admin') {
-                        document.getElementById('usersBtn').style.display = 'flex';
-                    }
-                }
+ 
+            if (sessionStorage.getItem('loggedIn') === 'true' && currentUser) {
                 initSite();
             }
-
+ 
         });
     </script>
-
+ 
 </body>
 </html>
+ 
